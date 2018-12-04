@@ -1,10 +1,15 @@
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ConnectFour implements Board {
 
-    private Collection<Checker> gameHistory = new LinkedList<>();
     private Player[] players = new Player[2];
+    private Checker[][] currBoard = new Checker[ROWS][COLS];
+    private int boardValue = 50;
+    private int level;
+
+    private List<Checker[][]> gameTree = new LinkedList<>();
 
     public ConnectFour(Player beginner) {
         players[0] = beginner;
@@ -12,16 +17,26 @@ public class ConnectFour implements Board {
 
     @Override
     public Player getFirstPlayer() {
-        if (gameHistory.size() % 2 == 0) {
-            return players[0];
-        } else {
-            return players[1];
-        }
+        return players[0];
     }
 
     @Override
     public Board move(int col) {
-        return null;
+        if (col > COLS) {
+            throw new IllegalArgumentException();
+        }
+
+        Board b = null;
+        int column = col - 1;
+        if (currBoard[0][column] == null) {
+            b = this.clone();
+            for (int i = currBoard[column].length; i >= 0; i--) {
+                if (currBoard[i][column] == null) {
+                    currBoard[i][column] = new Checker(players[0].getSymbol());
+                }
+            }
+        }
+        return b;
     }
 
     @Override
@@ -31,7 +46,7 @@ public class ConnectFour implements Board {
 
     @Override
     public void setLevel(int level) {
-
+        this.level = level;
     }
 
     @Override
@@ -56,6 +71,9 @@ public class ConnectFour implements Board {
 
     @Override
     public Board clone() {
-        return null;
+        ConnectFour clone = new ConnectFour(players[0]);
+        clone.boardValue = this.boardValue;
+        clone.currBoard = this.currBoard;
+        return clone;
     }
 }

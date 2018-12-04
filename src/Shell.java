@@ -16,7 +16,7 @@ public final class Shell {
             };
 
     private static boolean run;
-
+    private static ConnectFour game;
 
     private Shell() {
 
@@ -65,7 +65,7 @@ public final class Shell {
             switch (command.charAt(0)) {
                 case 'n':
                     if (command.equals(COMMANDS[0]) || command.length() == 1) {
-
+                        game = new ConnectFour(new Player('X'));
                     }
                     break;
 
@@ -139,7 +139,7 @@ public final class Shell {
 
     private static void move(int c) {
         if (c > 0) {
-
+            game.move(c);
         } else {
             System.out.println(DEFAULT_ERR_MESSAGE);
         }
