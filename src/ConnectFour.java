@@ -1,6 +1,7 @@
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class ConnectFour implements Board {
 
@@ -9,10 +10,11 @@ public class ConnectFour implements Board {
     private int boardValue = 50;
     private int level;
 
-    private List<Checker[][]> gameTree = new LinkedList<>();
+    private List<ConnectFour> gameTree = new LinkedList<>();
 
     public ConnectFour(Player beginner) {
         players[0] = beginner;
+        players[1] = new Player('O');
     }
 
     @Override
@@ -26,17 +28,24 @@ public class ConnectFour implements Board {
             throw new IllegalArgumentException();
         }
 
-        Board b = null;
         int column = col - 1;
+
         if (currBoard[0][column] == null) {
-            b = this.clone();
-            for (int i = currBoard[column].length; i >= 0; i--) {
+            ConnectFour b = (ConnectFour) this.clone();
+
+            for (int i = ROWS - 1; i > 0; i--) {
                 if (currBoard[i][column] == null) {
-                    currBoard[i][column] = new Checker(players[0].getSymbol());
+                    b.currBoard[i][column]
+                            = new Checker(new Coordinates2D(column, i),
+                            players[0].getSymbol());
+
+                    gameTree.add(b);
+                    currBoard = b.currBoard;
+                    return b;
                 }
             }
         }
-        return b;
+        return null;
     }
 
     @Override
@@ -75,5 +84,34 @@ public class ConnectFour implements Board {
         clone.boardValue = this.boardValue;
         clone.currBoard = this.currBoard;
         return clone;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+
+                Checker currSlot = currBoard[row][col];
+
+                if (currSlot == null) {
+                    b.append(".");
+                } else {
+                    b.append(currSlot.getSymbol());
+                }
+            }
+
+            b.append("\n");
+        }
+        return b.toString();
+    }
+
+    private void checkGroup(Checker c) {
+
+    }
+
+    private void calculateValue() {
+
     }
 }

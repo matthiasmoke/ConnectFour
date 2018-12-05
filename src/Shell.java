@@ -31,6 +31,7 @@ public final class Shell {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
         runShell(reader);
+
     }
 
     /**
@@ -107,7 +108,9 @@ public final class Shell {
                     break;
                 case 'p':
                     if (command.equals(COMMANDS[5]) || command.length() == 1) {
-
+                        if (game != null) {
+                            System.out.println(game.toString());
+                        }
                     }
 
                     break;
