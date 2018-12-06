@@ -1,20 +1,32 @@
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 public class ConnectFour implements Board {
 
-    private Player[] players = new Player[2];
     private Checker[][] currBoard = new Checker[ROWS][COLS];
+    private List<Group> groups2Player1 = new LinkedList<>();
+    private List<Group> groups3Player1 = new LinkedList<>();
+    private List<Group> groups2Player2 = new LinkedList<>();
+    private List<Group> groups3Player2 = new LinkedList<>();
+
+    private Player[] players = new Player[2];
     private int boardValue = 50;
     private int level;
+    private boolean botGame;
 
     private List<ConnectFour> gameTree = new LinkedList<>();
 
     public ConnectFour(Player beginner) {
         players[0] = beginner;
         players[1] = new Player('O');
+        botGame = true;
+    }
+
+    public ConnectFour(Player player1, Player player2) {
+        players[0] = player1;
+        players[1] = player2;
+        botGame = false;
     }
 
     @Override
@@ -33,7 +45,7 @@ public class ConnectFour implements Board {
         if (currBoard[0][column] == null) {
             ConnectFour b = (ConnectFour) this.clone();
 
-            for (int i = ROWS - 1; i > 0; i--) {
+            for (int i = 0; i < ROWS; i++) {
                 if (currBoard[i][column] == null) {
                     b.currBoard[i][column]
                             = new Checker(new Coordinates2D(column, i),
@@ -90,7 +102,7 @@ public class ConnectFour implements Board {
     public String toString() {
         StringBuilder b = new StringBuilder();
 
-        for (int row = 0; row < ROWS; row++) {
+        for (int row = ROWS - 1; row >= 0; row--) {
             for (int col = 0; col < COLS; col++) {
 
                 Checker currSlot = currBoard[row][col];
@@ -107,11 +119,20 @@ public class ConnectFour implements Board {
         return b.toString();
     }
 
-    private void checkGroup(Checker c) {
+    private void groupSearch(Checker c) {
 
     }
 
     private void calculateValue() {
 
+    }
+
+    private boolean isInGroups(Checker c, List<Group> groups) {
+        for (Group g : groups) {
+            if (g.isInGroup(c)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
