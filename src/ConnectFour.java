@@ -11,20 +11,25 @@ public class ConnectFour implements Board {
     private List<Group> groups3Player2 = new LinkedList<>();
 
     private Player[] players = new Player[2];
+    private Player currentPlayer;
     private int boardValue = 50;
     private int level;
     private boolean botGame;
+
+    int turns = 0; // for test purposes
 
     private List<ConnectFour> gameTree = new LinkedList<>();
 
     public ConnectFour(Player beginner) {
         players[0] = beginner;
+        currentPlayer = players[0];
         players[1] = new Player('O');
         botGame = true;
     }
 
     public ConnectFour(Player player1, Player player2) {
         players[0] = player1;
+        currentPlayer = players[0];
         players[1] = player2;
         botGame = false;
     }
@@ -39,7 +44,8 @@ public class ConnectFour implements Board {
         if (col > COLS) {
             throw new IllegalArgumentException();
         }
-
+        if(turns >= 1)
+            switchPlayer();
         int column = col - 1;
 
         if (currBoard[0][column] == null) {
@@ -49,14 +55,16 @@ public class ConnectFour implements Board {
                 if (currBoard[i][column] == null) {
                     b.currBoard[i][column]
                             = new Checker(new Coordinates2D(column, i),
-                            players[0].getSymbol());
+                            currentPlayer);
 
                     gameTree.add(b);
                     currBoard = b.currBoard;
+                    turns += 1;
                     return b;
                 }
             }
         }
+        turns += 1;
         return null;
     }
 
@@ -110,7 +118,7 @@ public class ConnectFour implements Board {
                 if (currSlot == null) {
                     b.append(".");
                 } else {
-                    b.append(currSlot.getSymbol());
+                    b.append(currSlot.getOwner().getSymbol());
                 }
             }
 
@@ -127,6 +135,55 @@ public class ConnectFour implements Board {
 
     }
 
+    /**
+     * Calculating Q value by using the formula given in the task-specification
+     *
+     * @return Q value for number of Checkers in board
+     */
+    public int getCheckerValueQ() {
+        int valueP1 = 0;
+        int valueP2 = 0;
+
+        //counting checkers of each player for each column
+        for (int i = 1; i <= COLS; i++) {
+
+            int checkersP1 = 0; //Number of checkers in column for player 1
+            int checkersP2 = 0;
+            for (int row = 0; row < ROWS; row++) {
+                Checker currChecker = currBoard[row][i - 1];
+                if(currChecker != null) {
+                    Player owner = currChecker.getOwner();
+
+                    if (owner.equals(players[0])) {
+                        checkersP1 += 1;
+                    } else if (owner.equals(players[1])) {
+                        checkersP2 += 1;
+                    }
+                }
+            }
+            valueP1 += i * checkersP1;
+            valueP2 += i * checkersP2;
+        }
+
+        return valueP1 - valueP2;
+    }
+
+    private boolean isColNull(int column) {
+        int col;
+        if (column > 0 && column <= COLS) {
+            return true;
+        }
+
+        col = column - 1;
+
+        for (int i = 0; i < ROWS; i++) {
+            if (currBoard[i][col] != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean isInGroups(Checker c, List<Group> groups) {
         for (Group g : groups) {
             if (g.isInGroup(c)) {
@@ -134,5 +191,15 @@ public class ConnectFour implements Board {
             }
         }
         return false;
+    }
+
+    private void switchPlayer() {
+        if (!botGame) {
+            if (currentPlayer.equals(players[0])) {
+                currentPlayer = players[1];
+            } else {
+                currentPlayer = players[0];
+            }
+        }
     }
 }

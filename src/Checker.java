@@ -1,15 +1,15 @@
 public class Checker {
 
-    private char symbol;
+    private Player owner;
     private Coordinates2D position;
 
-    public Checker(Coordinates2D postion, char symbol) {
+    public Checker(Coordinates2D postion, Player owner) {
         this.position = postion;
-        this.symbol = symbol;
+        this.owner = owner;
     }
 
-    public char getSymbol() {
-        return symbol;
+    public Player getOwner() {
+        return owner;
     }
 
     public Coordinates2D getPosition() {

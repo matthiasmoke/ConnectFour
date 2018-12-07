@@ -66,7 +66,7 @@ public final class Shell {
             switch (command.charAt(0)) {
                 case 'n':
                     if (command.equals(COMMANDS[0]) || command.length() == 1) {
-                        game = new ConnectFour(new Player('X'));
+                        game = new ConnectFour(new Player('X'), new Player('O'));
                     }
                     break;
 
@@ -84,7 +84,7 @@ public final class Shell {
 
                 case 's':
                     if (command.equals(COMMANDS[2]) || command.length() == 1) {
-
+                        System.out.println(game.getCheckerValueQ());
                     }
 
                     break;
