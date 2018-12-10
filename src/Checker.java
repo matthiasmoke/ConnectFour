@@ -3,8 +3,8 @@ public class Checker {
     private Player owner;
     private Coordinates2D position;
 
-    public Checker(Coordinates2D postion, Player owner) {
-        this.position = postion;
+    public Checker(Coordinates2D position, Player owner) {
+        this.position = position;
         this.owner = owner;
     }
 

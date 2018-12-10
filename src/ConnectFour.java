@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,23 +48,23 @@ public class ConnectFour implements Board {
         if(turns >= 1)
             switchPlayer();
         int column = col - 1;
+        boolean test = currBoard[0][ROWS - 1] == null;
 
-        if (currBoard[0][column] == null) {
-            ConnectFour b = (ConnectFour) this.clone();
+        ConnectFour b = (ConnectFour) this.clone();
 
-            for (int i = 0; i < ROWS; i++) {
-                if (currBoard[i][column] == null) {
-                    b.currBoard[i][column]
-                            = new Checker(new Coordinates2D(column, i),
-                            currentPlayer);
+        for (int i = 0; i < ROWS; i++) {
+            if (currBoard[i][column] == null) {
+                b.currBoard[i][column]
+                        = new Checker(new Coordinates2D(column, i),
+                        currentPlayer);
 
-                    gameTree.add(b);
-                    currBoard = b.currBoard;
-                    turns += 1;
-                    return b;
-                }
+                gameTree.add(b);
+                currBoard = b.currBoard;
+                turns += 1;
+                return b;
             }
         }
+
         turns += 1;
         return null;
     }
@@ -90,7 +91,7 @@ public class ConnectFour implements Board {
 
     @Override
     public Collection<Coordinates2D> getWitness() {
-        return null;
+        return getSurrounding(new Coordinates2D(3,2));
     }
 
     @Override
@@ -131,6 +132,39 @@ public class ConnectFour implements Board {
 
     }
 
+    public Collection<Coordinates2D> getSurrounding(Coordinates2D checker) {
+        List<Coordinates2D> outPut = new ArrayList<>(8);
+        int actRow = checker.getRow() + 1;
+        int actCol = checker.getColumn() + 1;
+
+        if (actRow > 1) {
+            outPut.add(new Coordinates2D(actRow - 1, actCol));
+
+        } else if (actRow < 6) {
+            outPut.add(new Coordinates2D(actRow + 1, actCol));
+
+        } else if (actCol > 1) {
+            outPut.add(new Coordinates2D(actRow, actCol - 1));
+
+        } else if (actCol < 7) {
+            outPut.add((new Coordinates2D(actRow, actCol + 1)));
+
+        } else if (actCol > 1 && actRow > 1) {
+            outPut.add(new Coordinates2D(actRow - 1, actCol - 1));
+
+        } else if (actCol < 7 && actRow < 6) {
+            outPut.add(new Coordinates2D(actRow + 1, actCol + 1));
+
+        } else if (actCol > 1 && actRow < 6) {
+            outPut.add(new Coordinates2D(actRow + 1, actCol - 1));
+
+        } else if (actCol < 7 && actRow > 1) {
+            outPut.add(new Coordinates2D(actRow - 1, actCol - 1));
+        }
+
+        return outPut;
+    }
+
     private void calculateValue() {
 
     }
@@ -140,7 +174,7 @@ public class ConnectFour implements Board {
      *
      * @return Q value for number of Checkers in board
      */
-    public int getCheckerValueQ() {
+    public int getCheckerValue() {
         int valueP1 = 0;
         int valueP2 = 0;
 

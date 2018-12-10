@@ -1,18 +1,23 @@
 public class Coordinates2D {
 
-    private int posX;
-    private int posY;
+    private int posRow;
+    private int posCol;
 
-    public Coordinates2D(int x, int y) {
-        posX = x;
-        posY = y;
+    public Coordinates2D(int row, int col) {
+        posRow = row;
+        posCol = col;
     }
 
-    public int getPositionX() {
-        return posX;
+    public int getRow() {
+        return posRow;
     }
 
-    public int getPositionY() {
-        return posY;
+    public int getColumn() {
+        return posCol;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%d, %d)", posCol, posRow);
     }
 }

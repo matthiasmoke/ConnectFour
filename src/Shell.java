@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Scanner;
 
 public final class Shell {
@@ -84,7 +85,7 @@ public final class Shell {
 
                 case 's':
                     if (command.equals(COMMANDS[2]) || command.length() == 1) {
-                        System.out.println(game.getCheckerValueQ());
+
                     }
 
                     break;
@@ -102,7 +103,7 @@ public final class Shell {
                     break;
                 case 'w':
                     if (command.equals(COMMANDS[4]) || command.length() == 1) {
-
+                        witness(game.getWitness());
                     }
 
                     break;
@@ -132,6 +133,12 @@ public final class Shell {
         }
 
         sc.close();
+    }
+
+    private static void witness(Collection<Coordinates2D> coordinates) {
+        for (Coordinates2D c : coordinates) {
+            System.out.println(c.toString());
+        }
     }
 
     private static void printHelpMessage() {
