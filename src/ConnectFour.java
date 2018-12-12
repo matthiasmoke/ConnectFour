@@ -48,7 +48,6 @@ public class ConnectFour implements Board {
         if(turns >= 1)
             switchPlayer();
         int column = col - 1;
-        boolean test = currBoard[0][ROWS - 1] == null;
 
         ConnectFour b = (ConnectFour) this.clone();
 
@@ -91,7 +90,7 @@ public class ConnectFour implements Board {
 
     @Override
     public Collection<Coordinates2D> getWitness() {
-        return getSurrounding(new Coordinates2D(3,2));
+        return null;
     }
 
     @Override
@@ -128,42 +127,87 @@ public class ConnectFour implements Board {
         return b.toString();
     }
 
-    private void groupSearch(Checker c) {
-
+    public void groupSearch() {
+        for (Checker che : getSurrounding(currBoard[1][1])) {
+            System.out.println(che.getPosition().toString());
+        }
     }
 
-    public Collection<Coordinates2D> getSurrounding(Coordinates2D checker) {
-        List<Coordinates2D> outPut = new ArrayList<>(8);
-        int actRow = checker.getRow() + 1;
-        int actCol = checker.getColumn() + 1;
+    private Collection<Checker> getSurrounding(Checker checker) {
+        List<Checker> surrounding = new ArrayList<>(8);
+        List<Checker> out = new ArrayList<>(8);
+        char symbol = checker.getOwner().getSymbol();
 
-        if (actRow > 1) {
-            outPut.add(new Coordinates2D(actRow - 1, actCol));
+        findDiagonalMembers(checker, surrounding);
+        findHorizontalNeighbours(checker, surrounding);
+        findVerticalNeighbours(checker, surrounding);
 
-        } else if (actRow < 6) {
-            outPut.add(new Coordinates2D(actRow + 1, actCol));
-
-        } else if (actCol > 1) {
-            outPut.add(new Coordinates2D(actRow, actCol - 1));
-
-        } else if (actCol < 7) {
-            outPut.add((new Coordinates2D(actRow, actCol + 1)));
-
-        } else if (actCol > 1 && actRow > 1) {
-            outPut.add(new Coordinates2D(actRow - 1, actCol - 1));
-
-        } else if (actCol < 7 && actRow < 6) {
-            outPut.add(new Coordinates2D(actRow + 1, actCol + 1));
-
-        } else if (actCol > 1 && actRow < 6) {
-            outPut.add(new Coordinates2D(actRow + 1, actCol - 1));
-
-        } else if (actCol < 7 && actRow > 1) {
-            outPut.add(new Coordinates2D(actRow - 1, actCol - 1));
+        //TODO finish/fix this method and finish groupSearch
+        for (Checker c : surrounding) {
+            if (c != null) {
+                if((c.getOwner().getSymbol() == symbol)) {
+                    out.add(c);
+                }
+            }
         }
 
-        return outPut;
+        return out;
     }
+
+    private void findVerticalNeighbours
+            (Checker c, List<Checker> surrounding) {
+
+        int actRow = c.getPosition().getRow();
+        int actCol = c.getPosition().getColumn();
+
+        if (actRow > 0) {
+            surrounding.add(currBoard[actRow - 1][actCol]);
+        }
+
+        if (actCol < ROWS - 1) {
+            surrounding.add(currBoard[actRow + 1][actCol]);
+        }
+    }
+
+    private void findHorizontalNeighbours
+            (Checker c, List<Checker> surrounding) {
+
+        int actRow = c.getPosition().getRow();
+        int actCol = c.getPosition().getColumn();
+
+        if (actCol > 0) {
+            surrounding.add(currBoard[actRow][actCol - 1]);
+        }
+
+        if (actCol < COLS - 1) {
+            surrounding.add(currBoard[actRow + 1][actCol + 1]);
+        }
+    }
+
+    private void findDiagonalMembers
+            (Checker c, List<Checker> surrounding) {
+
+        int actRow = c.getPosition().getRow();
+        int actCol = c.getPosition().getColumn();
+
+        if (actCol > 0 && actRow > 0) {
+            surrounding.add(currBoard[actRow - 1][actCol + 1]);
+        }
+
+        if (actCol < COLS - 1 && actRow < COLS - 1) {
+            surrounding.add(currBoard[actRow + 1][actCol + 1]);
+        }
+
+        if (actCol > 0 && actRow < ROWS - 1) {
+            surrounding.add(currBoard[actRow + 1][actCol - 1]);
+        }
+
+        if (actCol < COLS - 1 && actRow > 0) {
+            surrounding.add(currBoard[actRow - 1][actCol + 1]);
+        }
+    }
+
+
 
     private void calculateValue() {
 

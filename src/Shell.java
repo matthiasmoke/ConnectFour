@@ -31,6 +31,7 @@ public final class Shell {
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
+        init();
         runShell(reader);
 
     }
@@ -103,7 +104,7 @@ public final class Shell {
                     break;
                 case 'w':
                     if (command.equals(COMMANDS[4]) || command.length() == 1) {
-                        witness(game.getWitness());
+                        game.groupSearch();
                     }
 
                     break;
@@ -161,5 +162,20 @@ public final class Shell {
         } else {
             System.out.println(DEFAULT_ERR_MESSAGE);
         }
+    }
+
+    private static void init() {
+        evalInput("n");
+        evalInput("m 1");
+        evalInput("m 1");
+        evalInput("m 1");
+        evalInput("m 2");
+        evalInput("m 2");
+        evalInput("m 2");
+        evalInput("m 3");
+        evalInput("m 3");
+        evalInput("m 3");
+        evalInput("p");
+
     }
 }
