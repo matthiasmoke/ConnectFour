@@ -25,6 +25,7 @@ public final class Shell {
 
     /**
      * Main method that starts the shell
+     *
      * @param args main
      * @throws IOException can occur
      */
@@ -38,6 +39,7 @@ public final class Shell {
 
     /**
      * Runs the shell-loop
+     *
      * @param reader for user-input
      * @throws IOException can occur
      */
@@ -56,76 +58,57 @@ public final class Shell {
 
     /**
      * Evals the input
+     *
      * @param input user input
      */
     private static void evalInput(String input) {
-        Scanner sc =  new Scanner(input);
+        Scanner sc = new Scanner(input);
         String command = "";
 
         if (sc.hasNext()) {
             command = sc.next();
 
             switch (command.charAt(0)) {
+
                 case 'n':
-                    if (command.equals(COMMANDS[0]) || command.length() == 1) {
-                        game = new ConnectFour(new Player('X'), new Player('O'));
-                    }
+                    game = new ConnectFour(new Player('X'), new Player('O'));
                     break;
 
                 case 'l':
-                    if (command.equals(COMMANDS[1]) || command.length() == 1) {
-                        int i = 0;
-
-                        if (sc.hasNextInt()) {
-                            i = sc.nextInt();
-                        }
-
-                        setLevel(i);
+                    int i = 0;
+                    if (sc.hasNextInt()) {
+                        i = sc.nextInt();
                     }
+                    setLevel(i);
                     break;
 
                 case 's':
-                    if (command.equals(COMMANDS[2]) || command.length() == 1) {
-
-                    }
-
                     break;
+
                 case 'm':
-                    if (command.equals(COMMANDS[3]) || command.length() == 1) {
-                        int c = 0;
-
-                        if (sc.hasNextInt()) {
-                            c = sc.nextInt();
-                        }
-
-                        move(c);
+                    int c = 0;
+                    if (sc.hasNextInt()) {
+                        c = sc.nextInt();
                     }
-
+                    move(c);
                     break;
+
                 case 'w':
-                    if (command.equals(COMMANDS[4]) || command.length() == 1) {
-                        game.groupSearch();
-                    }
-
+                    game.groupSearch();
                     break;
+
                 case 'p':
-                    if (command.equals(COMMANDS[5]) || command.length() == 1) {
-                        if (game != null) {
-                            System.out.println(game.toString());
-                        }
+                    if (game != null) {
+                        System.out.println(game.toString());
                     }
-
                     break;
+
                 case 'h':
-                    if (command.equals(COMMANDS[6]) || command.length() == 1) {
-                        printHelpMessage();
-                    }
+                    printHelpMessage();
                     break;
 
                 case 'q':
-                    if (command.equals(COMMANDS[7]) || command.length() == 1) {
-                        run = false;
-                    }
+                    run = false;
                     break;
 
                 default:
