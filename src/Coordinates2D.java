@@ -3,7 +3,7 @@ public class Coordinates2D {
     private int posRow;
     private int posCol;
 
-    public Coordinates2D(int row, int col) {
+    public Coordinates2D(int col, int row) {
         posRow = row;
         posCol = col;
     }

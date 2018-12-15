@@ -109,8 +109,11 @@ public class ConnectFour implements Board {
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
+        String newLine = "";
 
         for (int row = ROWS - 1; row >= 0; row--) {
+
+            b.append(newLine);
             for (int col = 0; col < COLS; col++) {
 
                 Checker currSlot = currBoard[row][col];
@@ -121,28 +124,29 @@ public class ConnectFour implements Board {
                     b.append(currSlot.getOwner().getSymbol());
                 }
             }
-
-            b.append("\n");
+            newLine = "\n";
         }
         return b.toString();
     }
 
     public void groupSearch() {
-        for (Checker che : getSurrounding(currBoard[1][1])) {
+        Collection<Checker> lol = getSurrounding(currBoard[2][1]);
+        for (Checker che : lol) {
             System.out.println(che.getPosition().toString());
         }
+
+        //TODO: implement groupsearch
     }
 
     private Collection<Checker> getSurrounding(Checker checker) {
         List<Checker> surrounding = new ArrayList<>(8);
-        List<Checker> out = new ArrayList<>(8);
+        List<Checker> out = new ArrayList<>();
         char symbol = checker.getOwner().getSymbol();
 
         findDiagonalMembers(checker, surrounding);
         findHorizontalNeighbours(checker, surrounding);
         findVerticalNeighbours(checker, surrounding);
 
-        //TODO finish/fix this method and finish groupSearch
         for (Checker c : surrounding) {
             if (c != null) {
                 if((c.getOwner().getSymbol() == symbol)) {
@@ -154,56 +158,83 @@ public class ConnectFour implements Board {
         return out;
     }
 
+    /**
+     * Searches for the vertical neighbours of the given checker
+     *
+     * @param c Checker for search.
+     * @param surrounding List to add the results to.
+     */
     private void findVerticalNeighbours
             (Checker c, List<Checker> surrounding) {
 
         int actRow = c.getPosition().getRow();
         int actCol = c.getPosition().getColumn();
 
+        //add checker underneath if possible
         if (actRow > 0) {
             surrounding.add(currBoard[actRow - 1][actCol]);
         }
 
-        if (actCol < ROWS - 1) {
+        //add checker above if possible
+        if (actRow < ROWS - 1) {
             surrounding.add(currBoard[actRow + 1][actCol]);
         }
     }
 
+    /**
+     * Searches for the right and left neighbours of the given checker.
+     *
+     * @param c Checker for search.
+     * @param surrounding List to add results to.
+     */
     private void findHorizontalNeighbours
             (Checker c, List<Checker> surrounding) {
 
         int actRow = c.getPosition().getRow();
         int actCol = c.getPosition().getColumn();
 
+        //add right checker if possible
         if (actCol > 0) {
             surrounding.add(currBoard[actRow][actCol - 1]);
         }
 
+        //add right checker if possible
         if (actCol < COLS - 1) {
-            surrounding.add(currBoard[actRow + 1][actCol + 1]);
+            surrounding.add(currBoard[actRow][actCol + 1]);
         }
     }
 
+    /**
+     * Searches for the neighbours diagonal around the given checker.
+     *
+     * @param c Checker for search.
+     * @param surrounding List to add results to.
+     */
     private void findDiagonalMembers
             (Checker c, List<Checker> surrounding) {
 
         int actRow = c.getPosition().getRow();
         int actCol = c.getPosition().getColumn();
 
+        //if possible add checker from:
+        // -> right bottom
         if (actCol > 0 && actRow > 0) {
             surrounding.add(currBoard[actRow - 1][actCol + 1]);
         }
 
+        // -> right top
         if (actCol < COLS - 1 && actRow < COLS - 1) {
             surrounding.add(currBoard[actRow + 1][actCol + 1]);
         }
 
+        // -> left top
         if (actCol > 0 && actRow < ROWS - 1) {
             surrounding.add(currBoard[actRow + 1][actCol - 1]);
         }
 
+        // -> left bottom
         if (actCol < COLS - 1 && actRow > 0) {
-            surrounding.add(currBoard[actRow - 1][actCol + 1]);
+            surrounding.add(currBoard[actRow - 1][actCol - 1]);
         }
     }
 
@@ -232,6 +263,7 @@ public class ConnectFour implements Board {
                 if(currChecker != null) {
                     Player owner = currChecker.getOwner();
 
+                    //To whom does checker belong to?
                     if (owner.equals(players[0])) {
                         checkersP1 += 1;
                     } else if (owner.equals(players[1])) {
@@ -239,6 +271,7 @@ public class ConnectFour implements Board {
                     }
                 }
             }
+
             valueP1 += i * checkersP1;
             valueP2 += i * checkersP2;
         }
