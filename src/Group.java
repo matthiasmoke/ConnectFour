@@ -1,6 +1,9 @@
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a group of checkers in the game-board
+ */
 public class Group {
 
     private static final int MAX_SIZE = 4;

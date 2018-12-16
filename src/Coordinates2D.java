@@ -1,3 +1,6 @@
+/**
+ * Class to represent the coordinates of a checker in the game-board
+ */
 public class Coordinates2D {
 
     private int posRow;

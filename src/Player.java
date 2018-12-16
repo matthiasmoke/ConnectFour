@@ -1,9 +1,9 @@
-import java.util.List;
-
+/**
+ * Represents a player in the game
+ */
 public class Player {
 
     //private Color CheckerColor
-
     private char symbol;
 
     public Player(char symbol) {

@@ -3,6 +3,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Class to represent the game-board
+ */
 public class ConnectFour implements Board {
 
     private Checker[][] currBoard = new Checker[ROWS][COLS];
@@ -21,13 +24,22 @@ public class ConnectFour implements Board {
 
     private List<ConnectFour> gameTree = new LinkedList<>();
 
-    public ConnectFour(Player beginner) {
-        players[0] = beginner;
+    /**
+     * Constructor for one player (botgame)
+     */
+    public ConnectFour() {
+        players[0] = new Player('X');
         currentPlayer = players[0];
         players[1] = new Player('O');
         botGame = true;
     }
 
+    /**
+     * Constructor for two players (multiplayer)
+     *
+     * @param player1 Beginning player.
+     * @param player2 Second player.
+     */
     public ConnectFour(Player player1, Player player2) {
         players[0] = player1;
         currentPlayer = players[0];
@@ -100,10 +112,30 @@ public class ConnectFour implements Board {
 
     @Override
     public Board clone() {
-        ConnectFour clone = new ConnectFour(players[0]);
-        clone.boardValue = this.boardValue;
-        clone.currBoard = this.currBoard;
-        return clone;
+        ConnectFour copy ;
+        try {
+            copy = (ConnectFour) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new Error(ex);
+        }
+
+        //deep copy game board
+        copy.currBoard = currBoard.clone();
+        for (int i = 0; i < currBoard.length; i++) {
+            copy.currBoard[i] = currBoard[i].clone();
+            for (int j = 0; j < currBoard[i].length; j++) {
+                copy.currBoard[i][j] = currBoard[i][j].clone();
+            }
+        }
+
+        //copy player array and group lists
+        copy.players = players.clone();
+        copy.groups2Player1 = new ArrayList<>(groups2Player1);
+        copy.groups3Player1 = new ArrayList<>(groups3Player1);
+        copy.groups2Player2 = new ArrayList<>(groups2Player2);
+        copy.groups3Player2 = new ArrayList<>(groups3Player2);
+
+        return copy;
     }
 
     @Override
@@ -138,6 +170,15 @@ public class ConnectFour implements Board {
         //TODO: implement groupsearch
     }
 
+    private boolean isInGroups(Checker c, List<Group> groups) {
+        for (Group g : groups) {
+            if (g.isInGroup(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private Collection<Checker> getSurrounding(Checker checker) {
         List<Checker> surrounding = new ArrayList<>(8);
         List<Checker> out = new ArrayList<>();
@@ -154,7 +195,6 @@ public class ConnectFour implements Board {
                 }
             }
         }
-
         return out;
     }
 
@@ -245,11 +285,11 @@ public class ConnectFour implements Board {
     }
 
     /**
-     * Calculating Q value by using the formula given in the task-specification
+     * Calculates Q value by using the formula given in the task-specification.
      *
-     * @return Q value for number of Checkers in board
+     * @return Q value for number of Checkers in board.
      */
-    public int getCheckerValue() {
+    private int getCheckerValue() {
         int valueP1 = 0;
         int valueP2 = 0;
 
@@ -279,6 +319,16 @@ public class ConnectFour implements Board {
         return valueP1 - valueP2;
     }
 
+    /**
+     * Calculates Q value by using the formula given in the task-specification.
+     *
+     * @return P value for groups of each player.
+     */
+    private int getGroupValue() {
+        return 0;
+        //TODO
+    }
+
     private boolean isColNull(int column) {
         int col;
         if (column > 0 && column <= COLS) {
@@ -295,15 +345,9 @@ public class ConnectFour implements Board {
         return true;
     }
 
-    private boolean isInGroups(Checker c, List<Group> groups) {
-        for (Group g : groups) {
-            if (g.isInGroup(c)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /**
+     * Switches between players if the game is no botgame
+     */
     private void switchPlayer() {
         if (!botGame) {
             if (currentPlayer.equals(players[0])) {
