@@ -1,0 +1,12 @@
+Testing help message:
+4inarow> h
+--Following commands can be performed--
+new:		 Starts a new game.
+level:		 Sets the game-difficulty.
+			You can choose from 1 to 5. Default value is 4.
+switch:		 Switches the beginner.
+move c:		 Moves a checker for the current player to column c.
+witness:	 Shows the witness of the player.
+print:		 Prints the current game board.
+help:		 Prints help info.
+quit:		 Quits the game

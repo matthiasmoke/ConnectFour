@@ -4,6 +4,9 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Scanner;
 
+/**
+ * Shell class as user interface
+ */
 public final class Shell {
 
     private static final String DEFAULT_ERR_MESSAGE
@@ -24,10 +27,10 @@ public final class Shell {
     }
 
     /**
-     * Main method that starts the shell
+     * Main method that starts the shell.
      *
      * @param args main
-     * @throws IOException can occur
+     * @throws IOException Occurs on
      */
     public static void main(String[] args) throws IOException {
         BufferedReader reader
@@ -38,9 +41,9 @@ public final class Shell {
     }
 
     /**
-     * Runs the shell-loop
+     * Runs the shell-loop.
      *
-     * @param reader for user-input
+     * @param reader For processing user input.
      * @throws IOException can occur
      */
     private static void runShell(BufferedReader reader) throws IOException {
@@ -57,9 +60,9 @@ public final class Shell {
     }
 
     /**
-     * Evals the input
+     * Evals the input.
      *
-     * @param input user input
+     * @param input Input user has given.
      */
     private static void evalInput(String input) {
         Scanner sc = new Scanner(input);
@@ -75,22 +78,15 @@ public final class Shell {
                     break;
 
                 case 'l':
-                    int i = 0;
-                    if (sc.hasNextInt()) {
-                        i = sc.nextInt();
-                    }
-                    setLevel(i);
+                    setLevel(getNextInt(sc));
                     break;
 
                 case 's':
+
                     break;
 
                 case 'm':
-                    int c = 0;
-                    if (sc.hasNextInt()) {
-                        c = sc.nextInt();
-                    }
-                    move(c);
+                    move(getNextInt(sc));
                     break;
 
                 case 'w':
@@ -123,10 +119,24 @@ public final class Shell {
         for (Coordinates2D c : coordinates) {
             System.out.println(c.toString());
         }
+
+        //game.getWitness();
     }
 
     private static void printHelpMessage() {
         StringBuilder b = new StringBuilder();
+
+        b.append("--Following commands can be performed--\n");
+        b.append(COMMANDS[0]).append(":\t\t Starts a new game.\n");
+        b.append(COMMANDS[1]).append(":\t\t Sets the game-difficulty.\n");
+        b.append("\t\t\t You can choose from 1 to 5. Default value is 4.\n");
+        b.append(COMMANDS[2]).append(":\t\t Switches the beginner.\n");
+        b.append(COMMANDS[3]).append(" c:\t\t Moves a checker for the current");
+        b.append(" player to column c.\n");
+        b.append(COMMANDS[4]).append(":\t Shows the witness of the player.\n");
+        b.append(COMMANDS[5]).append(":\t\t Prints the current game board.\n");
+        b.append(COMMANDS[6]).append(":\t\t Prints help info.\n");
+        b.append(COMMANDS[7]).append(":\t\t Quits the game");
 
         System.out.println(b.toString());
     }
@@ -141,9 +151,23 @@ public final class Shell {
 
     private static void setLevel(int i) {
         if (i > 0 && i < 6) {
-
+            game.setLevel(i);
         } else {
             System.out.println(DEFAULT_ERR_MESSAGE);
+        }
+    }
+
+    /**
+     * Checks if Scanner has next int and returns it.
+     *
+     * @param sc Scanner to check.
+     * @return Next int of Scanner or 0, if Scanner has no nextInt.
+     */
+    private static int getNextInt(Scanner sc) {
+        if (sc.hasNext()) {
+            return sc.nextInt();
+        } else {
+            return 0;
         }
     }
 

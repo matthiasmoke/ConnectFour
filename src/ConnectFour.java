@@ -124,7 +124,9 @@ public class ConnectFour implements Board {
         for (int i = 0; i < currBoard.length; i++) {
             copy.currBoard[i] = currBoard[i].clone();
             for (int j = 0; j < currBoard[i].length; j++) {
-                copy.currBoard[i][j] = currBoard[i][j].clone();
+                if(currBoard[i][j] != null) {
+                    copy.currBoard[i][j] = currBoard[i][j].clone();
+                }
             }
         }
 
