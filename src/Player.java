@@ -3,7 +3,7 @@
  */
 public class Player {
 
-    //private Color CheckerColor
+    //private Color checkerColor
     private char symbol;
 
     public Player(char symbol) {

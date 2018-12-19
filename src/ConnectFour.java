@@ -112,7 +112,7 @@ public class ConnectFour implements Board {
 
     @Override
     public Board clone() {
-        ConnectFour copy ;
+        ConnectFour copy;
         try {
             copy = (ConnectFour) super.clone();
         } catch (CloneNotSupportedException ex) {
@@ -317,7 +317,6 @@ public class ConnectFour implements Board {
             valueP1 += i * checkersP1;
             valueP2 += i * checkersP2;
         }
-
         return valueP1 - valueP2;
     }
 
