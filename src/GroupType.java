@@ -1,0 +1,6 @@
+public enum GroupType {
+    DIAGONALFALLING,
+    DIAGONALRISING,
+    VERTICAL,
+    HORIZONTAL
+}

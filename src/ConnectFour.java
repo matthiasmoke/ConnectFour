@@ -9,10 +9,7 @@ import java.util.List;
 public class ConnectFour implements Board {
 
     private Checker[][] currBoard = new Checker[ROWS][COLS];
-    private List<Group> groups2Player1 = new LinkedList<>();
-    private List<Group> groups3Player1 = new LinkedList<>();
-    private List<Group> groups2Player2 = new LinkedList<>();
-    private List<Group> groups3Player2 = new LinkedList<>();
+
 
     private Player[] players = new Player[2];
     private Player currentPlayer;
@@ -132,10 +129,6 @@ public class ConnectFour implements Board {
 
         //copy player array and group lists
         copy.players = players.clone();
-        copy.groups2Player1 = new ArrayList<>(groups2Player1);
-        copy.groups3Player1 = new ArrayList<>(groups3Player1);
-        copy.groups2Player2 = new ArrayList<>(groups2Player2);
-        copy.groups3Player2 = new ArrayList<>(groups3Player2);
 
         return copy;
     }
@@ -170,15 +163,6 @@ public class ConnectFour implements Board {
         }
 
         //TODO: implement groupsearch
-    }
-
-    private boolean isInGroups(Checker c, List<Group> groups) {
-        for (Group g : groups) {
-            if (g.isInGroup(c)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private Collection<Checker> getSurrounding(Checker checker) {
