@@ -9,8 +9,7 @@ import java.util.List;
 public class ConnectFour implements Board {
 
     private Checker[][] currBoard = new Checker[ROWS][COLS];
-
-
+    private GroupManager groups;
     private Player[] players = new Player[2];
     private Player currentPlayer;
     private int boardValue = 50;
@@ -28,6 +27,7 @@ public class ConnectFour implements Board {
         players[0] = new Player('X');
         currentPlayer = players[0];
         players[1] = new Player('O');
+        groups = new GroupManager(players[0], players[1]);
         botGame = true;
     }
 
@@ -41,6 +41,7 @@ public class ConnectFour implements Board {
         players[0] = player1;
         currentPlayer = players[0];
         players[1] = player2;
+        groups = new GroupManager(players[0], players[1]);
         botGame = false;
     }
 
@@ -54,16 +55,16 @@ public class ConnectFour implements Board {
         if (col > COLS) {
             throw new IllegalArgumentException();
         }
-        if(turns >= 1)
+        if (turns >= 1)
             switchPlayer();
-        int column = col - 1;
 
+        int column = col - 1;
         ConnectFour b = (ConnectFour) this.clone();
 
         for (int i = 0; i < ROWS; i++) {
             if (currBoard[i][column] == null) {
                 b.currBoard[i][column]
-                        = new Checker(new Coordinates2D(column, i),
+                        = new Checker(new Coordinates2D(i, column),
                         currentPlayer);
 
                 gameTree.add(b);
@@ -121,7 +122,7 @@ public class ConnectFour implements Board {
         for (int i = 0; i < currBoard.length; i++) {
             copy.currBoard[i] = currBoard[i].clone();
             for (int j = 0; j < currBoard[i].length; j++) {
-                if(currBoard[i][j] != null) {
+                if (currBoard[i][j] != null) {
                     copy.currBoard[i][j] = currBoard[i][j].clone();
                 }
             }
@@ -156,118 +157,145 @@ public class ConnectFour implements Board {
         return b.toString();
     }
 
-    public void groupSearch() {
-        Collection<Checker> lol = getSurrounding(currBoard[2][1]);
-        for (Checker che : lol) {
-            System.out.println(che.getPosition().toString());
-        }
-
-        //TODO: implement groupsearch
-    }
-
-    private Collection<Checker> getSurrounding(Checker checker) {
-        List<Checker> surrounding = new ArrayList<>(8);
-        List<Checker> out = new ArrayList<>();
-        char symbol = checker.getOwner().getSymbol();
-
-        findDiagonalMembers(checker, surrounding);
-        findHorizontalNeighbours(checker, surrounding);
-        findVerticalNeighbours(checker, surrounding);
-
-        for (Checker c : surrounding) {
-            if (c != null) {
-                if((c.getOwner().getSymbol() == symbol)) {
-                    out.add(c);
-                }
-            }
-        }
-        return out;
+    /**
+     * Check if there are new groups for all group-types
+     *
+     * @param checker Checker to search groups for
+     */
+    public void groupSearch(Checker checker) {
+        findDiagonalFallingMembers(checker);
+        findDiagonalRisingMembers(checker);
+        findHorizontalNeighbours(checker);
+        findVerticalNeighbours(checker);
     }
 
     /**
      * Searches for the vertical neighbours of the given checker
      *
-     * @param c Checker for search.
-     * @param surrounding List to add the results to.
+     * @param checker Checker for search.
      */
-    private void findVerticalNeighbours
-            (Checker c, List<Checker> surrounding) {
+    private void findVerticalNeighbours(Checker checker) {
 
-        int actRow = c.getPosition().getRow();
-        int actCol = c.getPosition().getColumn();
+        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        int actRow = checker.getPosition().getRow();
+        int actCol = checker.getPosition().getColumn();
 
-        //add checker underneath if possible
-        if (actRow > 0) {
-            surrounding.add(currBoard[actRow - 1][actCol]);
+        // calculate neighbour coordinates
+        Coordinates2D underneath = new Coordinates2D(actRow - 1, actCol);
+        Coordinates2D above = new Coordinates2D(actRow + 1, actCol);
+
+        // add checker underneath if possible
+        if (positionNotOutOfBounds(underneath)) {
+            surrounding.add(underneath);
         }
 
-        //add checker above if possible
-        if (actRow < ROWS - 1) {
-            surrounding.add(currBoard[actRow + 1][actCol]);
+        // add checker above if possible
+        if (positionNotOutOfBounds(above)) {
+            surrounding.add(above);
         }
+
+        groups.check(checker, surrounding, GroupType.VERTICAL);
     }
 
     /**
      * Searches for the right and left neighbours of the given checker.
      *
-     * @param c Checker for search.
-     * @param surrounding List to add results to.
+     * @param checker Checker for search.
      */
-    private void findHorizontalNeighbours
-            (Checker c, List<Checker> surrounding) {
+    private void findHorizontalNeighbours(Checker checker) {
 
-        int actRow = c.getPosition().getRow();
-        int actCol = c.getPosition().getColumn();
+        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        int actRow = checker.getPosition().getRow();
+        int actCol = checker.getPosition().getColumn();
 
-        //add right checker if possible
-        if (actCol > 0) {
-            surrounding.add(currBoard[actRow][actCol - 1]);
+        Coordinates2D left = new Coordinates2D
+                (actRow, actCol - 1);
+
+        Coordinates2D right = new Coordinates2D
+                (actRow, actCol + 1);
+
+        // add left checker if possible
+        if (positionNotOutOfBounds(left)) {
+            surrounding.add(left);
         }
 
-        //add right checker if possible
-        if (actCol < COLS - 1) {
-            surrounding.add(currBoard[actRow][actCol + 1]);
+        // add right checker if possible
+        if (positionNotOutOfBounds(right)) {
+            surrounding.add(right);
         }
+
+        groups.check(checker, surrounding, GroupType.HORIZONTAL);
     }
 
     /**
-     * Searches for the neighbours diagonal around the given checker.
+     * Searches for the neighbours on a rising diagonal through the checker
      *
-     * @param c Checker for search.
-     * @param surrounding List to add results to.
+     * @param checker Checker for search.
      */
-    private void findDiagonalMembers
-            (Checker c, List<Checker> surrounding) {
+    private void findDiagonalRisingMembers(Checker checker) {
 
-        int actRow = c.getPosition().getRow();
-        int actCol = c.getPosition().getColumn();
+        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        int actRow = checker.getPosition().getRow();
+        int actCol = checker.getPosition().getColumn();
 
-        //if possible add checker from:
-        // -> right bottom
-        if (actCol > 0 && actRow > 0) {
-            surrounding.add(currBoard[actRow - 1][actCol + 1]);
-        }
+        Coordinates2D topRight = new Coordinates2D
+                (actRow + 1, actCol + 1);
 
+        Coordinates2D bottomLeft = new Coordinates2D
+                (actRow + 1, actCol - 1);
+
+        // if possible get checker from:
         // -> right top
-        if (actCol < COLS - 1 && actRow < COLS - 1) {
-            surrounding.add(currBoard[actRow + 1][actCol + 1]);
-        }
-
-        // -> left top
-        if (actCol > 0 && actRow < ROWS - 1) {
-            surrounding.add(currBoard[actRow + 1][actCol - 1]);
+        if (positionNotOutOfBounds(topRight)) {
+            surrounding.add(topRight);
         }
 
         // -> left bottom
-        if (actCol < COLS - 1 && actRow > 0) {
-            surrounding.add(currBoard[actRow - 1][actCol - 1]);
+        if (positionNotOutOfBounds(bottomLeft)) {
+            surrounding.add(bottomLeft);
         }
+
+        groups.check(checker, surrounding, GroupType.DIAGONALRISING);
     }
 
+    /**
+     * Searches for the neighbours on a falling diagonal through the checker
+     *
+     * @param checker Checker for search.
+     */
+    private void findDiagonalFallingMembers(Checker checker) {
 
+        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        int actRow = checker.getPosition().getRow();
+        int actCol = checker.getPosition().getColumn();
 
-    private void calculateValue() {
+        Coordinates2D topLeft = new Coordinates2D
+                (actRow + 1, actCol - 1);
 
+        Coordinates2D bottomRight = new Coordinates2D
+                (actRow - 1, actCol + 1);
+
+        // if possible get checker from
+        // -> top left
+        if (positionNotOutOfBounds(topLeft)) {
+            surrounding.add(topLeft);
+        }
+
+        // -> bottom right
+        if (positionNotOutOfBounds(bottomRight)) {
+            surrounding.add(bottomRight);
+        }
+
+        groups.check(checker, surrounding, GroupType.DIAGONALFALLING);
+    }
+
+    private boolean positionNotOutOfBounds(Coordinates2D position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        return (row < currBoard.length
+                && col < currBoard[0].length
+                && row > 0 && col > 0);
     }
 
     /**
@@ -286,7 +314,7 @@ public class ConnectFour implements Board {
             int checkersP2 = 0;
             for (int row = 0; row < ROWS; row++) {
                 Checker currChecker = currBoard[row][i - 1];
-                if(currChecker != null) {
+                if (currChecker != null) {
                     Player owner = currChecker.getOwner();
 
                     //To whom does checker belong to?
@@ -312,22 +340,6 @@ public class ConnectFour implements Board {
     private int getGroupValue() {
         return 0;
         //TODO
-    }
-
-    private boolean isColNull(int column) {
-        int col;
-        if (column > 0 && column <= COLS) {
-            return true;
-        }
-
-        col = column - 1;
-
-        for (int i = 0; i < ROWS; i++) {
-            if (currBoard[i][col] != null) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**

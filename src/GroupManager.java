@@ -13,7 +13,7 @@ public class GroupManager {
         players[1] = player2;
     }
 
-    public void check(Checker current, List<Checker> neighbours,
+    public void check(Checker current, List<Coordinates2D> neighbours,
                       GroupType type) {
         if (current.getOwner().equals(players[0])) {
             checkGroups(current, neighbours, type, groupsPlayer1);
@@ -22,19 +22,19 @@ public class GroupManager {
         }
     }
 
-    private void checkGroups(Checker checker, List<Checker> neighbours,
+    private void checkGroups(Checker checker, List<Coordinates2D> neighbours,
                               GroupType type, List<Group> allGroups) {
         //get all groups with certain group-type
         List<Group> groups =
                 allGroups.stream()
                 .filter(g -> g.getType() == type).collect(Collectors.toList());
 
-        for (Checker neighbour : neighbours) {
+        for (Coordinates2D neighbour : neighbours) {
             boolean noGroup = true;
             for (Group currGroup : groups) {
                 //is neighbour already in a group?
                 if (currGroup.hasMember(neighbour)
-                        && !currGroup.hasMember(checker)) {
+                        && !currGroup.hasMember(checker.getPosition())) {
 
                     currGroup.addMember(checker.getPosition());
                     noGroup = false;
@@ -43,7 +43,7 @@ public class GroupManager {
             // if neighbour is not in a group, a new one is created
             if (noGroup) {
                 allGroups.add(new Group(checker.getPosition(),
-                        neighbour.getPosition(), type));
+                        neighbour, type));
             }
         }
     }

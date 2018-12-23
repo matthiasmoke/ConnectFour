@@ -90,7 +90,6 @@ public final class Shell {
                     break;
 
                 case 'w':
-                    game.groupSearch();
                     break;
 
                 case 'p':
@@ -173,15 +172,13 @@ public final class Shell {
 
     private static void init() {
         evalInput("n");
-        evalInput("m 1");
-        evalInput("m 1");
-        evalInput("m 1");
+        evalInput("m 3");
         evalInput("m 2");
         evalInput("m 2");
-        evalInput("m 2");
+        evalInput("m 1");
         evalInput("m 3");
-        evalInput("m 3");
-        evalInput("m 3");
+        evalInput("m 1");
+        evalInput("m 1");
         evalInput("p");
 
     }

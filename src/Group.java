@@ -24,16 +24,16 @@ public class Group {
         return type;
     }
 
-    public boolean hasMember(Checker c) {
+    public boolean hasMember(Coordinates2D pos) {
         for (Coordinates2D member : members) {
-            if (member.equals(c)) {
+            if (member.equals(pos)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void addMember(Coordinates2D c) {
-        members.add(c);
+    public void addMember(Coordinates2D pos) {
+        members.add(pos);
     }
 }
