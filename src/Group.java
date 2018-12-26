@@ -4,9 +4,8 @@ import java.util.List;
 /**
  * Represents a group of checkers in the game-board
  */
-public class Group {
+public class Group implements Cloneable{
 
-    private static final int MAX_SIZE = 4;
     private GroupType type;
     private List<Coordinates2D> members = new LinkedList<>();
 
@@ -34,6 +33,24 @@ public class Group {
     }
 
     public void addMember(Coordinates2D pos) {
-        members.add(pos);
+        if (members.size() < Board.CONNECT) {
+            members.add(pos);
+        }
+    }
+
+    @Override
+    public Group clone() {
+        Group copy;
+        try {
+            copy = (Group) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new Error(ex);
+        }
+
+        for (Coordinates2D member : members) {
+            copy.addMember(member.clone());
+        }
+
+        return copy;
     }
 }

@@ -6,33 +6,34 @@ import java.util.List;
 /**
  * Class to represent the game-board
  */
-public class ConnectFour implements Board {
+public class ConnectFour implements Board, Cloneable {
 
     private Checker[][] currBoard = new Checker[ROWS][COLS];
     private GroupManager groups;
     private Player[] players = new Player[2];
     private Player currentPlayer;
-    private int boardValue = 50;
+    private int boardValue;
     private int level;
-    private boolean botGame;
+    private boolean gameOver = false;
+    private List<ArrayList<Board>> gameTree = new LinkedList<>();
 
-    int turns = 0; // for test purposes
-
-    private List<ConnectFour> gameTree = new LinkedList<>();
+    //private boolean botGame;
 
     /**
-     * Constructor for one player (botgame)
+     * Default constructor for game
      */
     public ConnectFour() {
         players[0] = new Player('X');
         currentPlayer = players[0];
-        players[1] = new Player('O');
+        players[1] = new Player('O', true);
         groups = new GroupManager(players[0], players[1]);
-        botGame = true;
+
+        //botGame = true;
     }
 
+
     /**
-     * Constructor for two players (multiplayer)
+     * Constructor for two players (can be used for multiplayer in the future)
      *
      * @param player1 Beginning player.
      * @param player2 Second player.
@@ -42,7 +43,7 @@ public class ConnectFour implements Board {
         currentPlayer = players[0];
         players[1] = player2;
         groups = new GroupManager(players[0], players[1]);
-        botGame = false;
+        //botGame = false;
     }
 
     @Override
@@ -52,34 +53,40 @@ public class ConnectFour implements Board {
 
     @Override
     public Board move(int col) {
-        if (col > COLS) {
+        if (gameOver) {
+            throw new IllegalMoveException();
+        }
+
+        if (col > COLS && col < 1) {
             throw new IllegalArgumentException();
         }
-        if (turns >= 1)
-            switchPlayer();
 
         int column = col - 1;
-        ConnectFour b = (ConnectFour) this.clone();
+        ConnectFour newBoard = (ConnectFour) this.clone();
 
         for (int i = 0; i < ROWS; i++) {
             if (currBoard[i][column] == null) {
-                b.currBoard[i][column]
-                        = new Checker(new Coordinates2D(i, column),
+                Checker newChecker = new Checker(new Coordinates2D(i, column),
                         currentPlayer);
 
-                gameTree.add(b);
-                currBoard = b.currBoard;
-                turns += 1;
-                return b;
+                newBoard.currBoard[i][column] = newChecker;
+                newBoard.groupSearch(newChecker); //check groups for new checker
+                newBoard.calculateBoardValue(); //calculate board-value for bot
+                return newBoard;
             }
         }
-
-        turns += 1;
         return null;
     }
 
     @Override
     public Board machineMove() {
+
+        for (int depth = 0; depth < level; depth++) {
+            for (int col = 0; col < 7; col++) {
+                gameTree.get(depth).add(move(col));
+            }
+        }
+
         return null;
     }
 
@@ -90,7 +97,7 @@ public class ConnectFour implements Board {
 
     @Override
     public boolean isGameOver() {
-        return false;
+        return gameOver;
     }
 
     @Override
@@ -105,7 +112,13 @@ public class ConnectFour implements Board {
 
     @Override
     public Player getSlot(int row, int col) {
-        return null;
+        int arrayRow = row - 1;
+        int arrayCol = col - 1;
+        if (currBoard[arrayRow][arrayCol] != null) {
+            return currBoard[arrayRow][arrayCol].getOwner();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -185,12 +198,12 @@ public class ConnectFour implements Board {
         Coordinates2D above = new Coordinates2D(actRow + 1, actCol);
 
         // add checker underneath if possible
-        if (positionNotOutOfBounds(underneath)) {
+        if (isValidPosition(underneath)) {
             surrounding.add(underneath);
         }
 
         // add checker above if possible
-        if (positionNotOutOfBounds(above)) {
+        if (isValidPosition(above)) {
             surrounding.add(above);
         }
 
@@ -215,12 +228,12 @@ public class ConnectFour implements Board {
                 (actRow, actCol + 1);
 
         // add left checker if possible
-        if (positionNotOutOfBounds(left)) {
+        if (isValidPosition(left)) {
             surrounding.add(left);
         }
 
         // add right checker if possible
-        if (positionNotOutOfBounds(right)) {
+        if (isValidPosition(right)) {
             surrounding.add(right);
         }
 
@@ -246,12 +259,12 @@ public class ConnectFour implements Board {
 
         // if possible get checker from:
         // -> right top
-        if (positionNotOutOfBounds(topRight)) {
+        if (isValidPosition(topRight)) {
             surrounding.add(topRight);
         }
 
         // -> left bottom
-        if (positionNotOutOfBounds(bottomLeft)) {
+        if (isValidPosition(bottomLeft)) {
             surrounding.add(bottomLeft);
         }
 
@@ -277,26 +290,35 @@ public class ConnectFour implements Board {
 
         // if possible get checker from
         // -> top left
-        if (positionNotOutOfBounds(topLeft)) {
+        if (isValidPosition(topLeft)) {
             surrounding.add(topLeft);
         }
 
         // -> bottom right
-        if (positionNotOutOfBounds(bottomRight)) {
+        if (isValidPosition(bottomRight)) {
             surrounding.add(bottomRight);
         }
 
         groups.check(checker, surrounding, GroupType.DIAGONALFALLING);
     }
 
-    private boolean positionNotOutOfBounds(Coordinates2D position) {
+    /**
+     * Checks if given coordinates are on the game board and if the given
+     * position is null
+     *
+     * @param position Position for Checker on the game board
+     * @return true if position exists on the board and is not null
+     */
+    private boolean isValidPosition(Coordinates2D position) {
         int row = position.getRow();
         int col = position.getColumn();
 
         return (row < currBoard.length
                 && col < currBoard[0].length
-                && row > 0 && col > 0);
+                && row > 0 && col > 0
+                && currBoard[row][col] != null);
     }
+
 
     /**
      * Calculates Q value by using the formula given in the task-specification.
@@ -329,22 +351,35 @@ public class ConnectFour implements Board {
             valueP1 += i * checkersP1;
             valueP2 += i * checkersP2;
         }
-        return valueP1 - valueP2;
+
+        //detect which player is the bot
+        if (players[0].isMachine()) {
+            return valueP1 - valueP2;
+        } else {
+            return valueP2 - valueP1;
+        }
     }
 
-    /**
-     * Calculates Q value by using the formula given in the task-specification.
-     *
-     * @return P value for groups of each player.
-     */
-    private int getGroupValue() {
-        return 0;
-        //TODO
+    public void calculateValues() {
+        int q = getCheckerValue();
+        int p = groups.calculateValue();
+        System.out.println(q);
+        System.out.println(p);
     }
 
+    private void calculateBoardValue() {
+        boardValue = getCheckerValue() + groups.calculateValue();
+
+        if(groups.isBotWinPossible()) {
+            boardValue += 500000;
+        }
+    }
+
+
+    /*
     /**
      * Switches between players if the game is no botgame
-     */
+     *
     private void switchPlayer() {
         if (!botGame) {
             if (currentPlayer.equals(players[0])) {
@@ -354,4 +389,5 @@ public class ConnectFour implements Board {
             }
         }
     }
+    */
 }

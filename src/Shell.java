@@ -35,7 +35,6 @@ public final class Shell {
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
-        init();
         runShell(reader);
 
     }
@@ -74,7 +73,8 @@ public final class Shell {
             switch (command.charAt(0)) {
 
                 case 'n':
-                    game = new ConnectFour(new Player('X'), new Player('O'));
+                    createNewGame(new Player('X'),
+                            new Player('O', true));
                     break;
 
                 case 'l':
@@ -82,7 +82,9 @@ public final class Shell {
                     break;
 
                 case 's':
-
+                    Player p1 = new Player('O', true);
+                    Player p2 = new Player('X');
+                    createNewGame(p1, p2);
                     break;
 
                 case 'm':
@@ -90,6 +92,7 @@ public final class Shell {
                     break;
 
                 case 'w':
+                    witness();
                     break;
 
                 case 'p':
@@ -114,14 +117,25 @@ public final class Shell {
         sc.close();
     }
 
-    private static void witness(Collection<Coordinates2D> coordinates) {
-        for (Coordinates2D c : coordinates) {
-            System.out.println(c.toString());
+    private static void createNewGame(Player player1, Player player2) {
+        game = new ConnectFour(player1, player2);
+        if (game.getFirstPlayer().isMachine()) {
+            game.machineMove();
         }
-
-        //game.getWitness();
     }
 
+    /**
+     * Prints coordinates of winning group
+     */
+    private static void witness() {
+        for (Coordinates2D c : game.getWitness()) {
+            System.out.println(c.toString());
+        }
+    }
+
+    /**
+     * Prints a help message for the user
+     */
     private static void printHelpMessage() {
         StringBuilder b = new StringBuilder();
 
@@ -140,17 +154,29 @@ public final class Shell {
         System.out.println(b.toString());
     }
 
-    private static void move(int c) {
-        if (c > 0) {
-            game.move(c);
-        } else {
-            System.out.println(DEFAULT_ERR_MESSAGE);
+    /**
+     * Performs player move if possible
+     *
+     * @param column Column to put Checker in
+     */
+    private static void move(int column) {
+        if (!game.getFirstPlayer().isMachine()) {
+            if (column > 0 && column < 8) {
+                game = (ConnectFour) game.move(column);
+            } else {
+                System.out.println(DEFAULT_ERR_MESSAGE);
+            }
         }
     }
 
-    private static void setLevel(int i) {
-        if (i > 0 && i < 6) {
-            game.setLevel(i);
+    /**
+     * Sets game level
+     *
+     * @param level Level for game (values from 1 to 5 possible)
+     */
+    private static void setLevel(int level) {
+        if (level > 0 && level < 6) {
+            game.setLevel(level);
         } else {
             System.out.println(DEFAULT_ERR_MESSAGE);
         }
@@ -168,18 +194,5 @@ public final class Shell {
         } else {
             return 0;
         }
-    }
-
-    private static void init() {
-        evalInput("n");
-        evalInput("m 3");
-        evalInput("m 2");
-        evalInput("m 2");
-        evalInput("m 1");
-        evalInput("m 3");
-        evalInput("m 1");
-        evalInput("m 1");
-        evalInput("p");
-
     }
 }
