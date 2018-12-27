@@ -162,7 +162,13 @@ public final class Shell {
     private static void move(int column) {
         if (!game.getFirstPlayer().isMachine()) {
             if (column > 0 && column < 8) {
-                game = (ConnectFour) game.move(column);
+                Board playerMove = game.move(column);
+                if (playerMove != null) {
+                    game = (ConnectFour) playerMove;
+                    game.machineMove();
+                } else {
+                    //TODO
+                }
             } else {
                 System.out.println(DEFAULT_ERR_MESSAGE);
             }
@@ -175,11 +181,19 @@ public final class Shell {
      * @param level Level for game (values from 1 to 5 possible)
      */
     private static void setLevel(int level) {
-        if (level > 0 && level < 6) {
-            game.setLevel(level);
+        if (initianted()) {
+            if (level > 0 && level < 6) {
+                game.setLevel(level);
+            } else {
+                System.out.println(DEFAULT_ERR_MESSAGE);
+            }
         } else {
-            System.out.println(DEFAULT_ERR_MESSAGE);
+            //TODO
         }
+    }
+
+    private static boolean initianted() {
+        return game != null;
     }
 
     /**

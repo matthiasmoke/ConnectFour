@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ public class ConnectFour implements Board, Cloneable {
     private int boardValue;
     private int level;
     private boolean gameOver = false;
-    private List<ArrayList<Board>> gameTree = new LinkedList<>();
+    private ConnectFour[] gameTree = new ConnectFour[7];
 
     //private boolean botGame;
 
@@ -80,13 +79,9 @@ public class ConnectFour implements Board, Cloneable {
 
     @Override
     public Board machineMove() {
-
-        for (int depth = 0; depth < level; depth++) {
-            for (int col = 0; col < 7; col++) {
-                gameTree.get(depth).add(move(col));
-            }
-        }
-
+        currentPlayer = players[1];
+        gameTree = generateGameTree(this, level);
+        currentPlayer = players[0];
         return null;
     }
 
@@ -170,12 +165,26 @@ public class ConnectFour implements Board, Cloneable {
         return b.toString();
     }
 
+    private ConnectFour[] generateGameTree(ConnectFour current, int depth) {
+
+        ConnectFour[] gameTree = new ConnectFour[7];
+        for (int i = 0; i < depth; i++) {
+            for (int col = 0; col < COLS; col++) {
+                ConnectFour newBoard = (ConnectFour) current.move(col + 1);
+                gameTree[col] = newBoard;
+                gameTree[col].gameTree = generateGameTree(gameTree[col],
+                        depth - 1);
+            }
+        }
+        return gameTree;
+    }
+
     /**
      * Check if there are new groups for all group-types
      *
      * @param checker Checker to search groups for
      */
-    public void groupSearch(Checker checker) {
+    private void groupSearch(Checker checker) {
         findDiagonalFallingMembers(checker);
         findDiagonalRisingMembers(checker);
         findHorizontalNeighbours(checker);
