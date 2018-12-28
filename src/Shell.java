@@ -21,6 +21,8 @@ public final class Shell {
 
     private static boolean run;
     private static ConnectFour game;
+    private static int level = 0;
+    private static boolean levelIsSet = false;
 
     private Shell() {
 
@@ -78,13 +80,12 @@ public final class Shell {
                     break;
 
                 case 'l':
-                    setLevel(getNextInt(sc));
+                    level = getNextInt(sc);
+                    setLevel(level);
                     break;
 
                 case 's':
-                    Player p1 = new Player('O', true);
-                    Player p2 = new Player('X');
-                    createNewGame(p1, p2);
+                    switchBeginner();
                     break;
 
                 case 'm':
@@ -119,9 +120,18 @@ public final class Shell {
 
     private static void createNewGame(Player player1, Player player2) {
         game = new ConnectFour(player1, player2);
-        if (game.getFirstPlayer().isMachine()) {
-            game.machineMove();
+        if (levelIsSet) {
+            setLevel(level);
         }
+        if (game.getFirstPlayer().isMachine()) {
+            game = (ConnectFour) game.machineMove();
+        }
+    }
+
+    private static void switchBeginner() {
+        Player p1 = new Player('O', true);
+        Player p2 = new Player('X');
+        createNewGame(p1, p2);
     }
 
     /**
@@ -160,18 +170,16 @@ public final class Shell {
      * @param column Column to put Checker in
      */
     private static void move(int column) {
-        if (!game.getFirstPlayer().isMachine()) {
-            if (column > 0 && column < 8) {
-                Board playerMove = game.move(column);
-                if (playerMove != null) {
-                    game = (ConnectFour) playerMove;
-                    game.machineMove();
-                } else {
-                    //TODO
-                }
+        if (column > 0 && column < 8) {
+            Board playerMove = game.move(column);
+            if (playerMove != null) {
+                game = (ConnectFour) playerMove;
+                game = (ConnectFour) game.machineMove();
             } else {
-                System.out.println(DEFAULT_ERR_MESSAGE);
+                //TODO
             }
+        } else {
+            System.out.println(DEFAULT_ERR_MESSAGE);
         }
     }
 
@@ -181,9 +189,10 @@ public final class Shell {
      * @param level Level for game (values from 1 to 5 possible)
      */
     private static void setLevel(int level) {
-        if (initianted()) {
+        if (initiated()) {
             if (level > 0 && level < 6) {
                 game.setLevel(level);
+                levelIsSet = true;
             } else {
                 System.out.println(DEFAULT_ERR_MESSAGE);
             }
@@ -192,7 +201,7 @@ public final class Shell {
         }
     }
 
-    private static boolean initianted() {
+    private static boolean initiated() {
         return game != null;
     }
 

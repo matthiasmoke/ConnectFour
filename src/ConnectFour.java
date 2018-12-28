@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class to represent the game-board
@@ -12,7 +10,7 @@ public class ConnectFour implements Board, Cloneable {
     private Player[] players = new Player[2];
     private Player currentPlayer;
     private int boardValue;
-    private int level;
+    private int level = 4;
     private boolean gameOver = false;
     private ConnectFour[] gameTree = new ConnectFour[7];
 
@@ -70,7 +68,6 @@ public class ConnectFour implements Board, Cloneable {
 
                 newBoard.currBoard[i][column] = newChecker;
                 newBoard.groupSearch(newChecker); //check groups for new checker
-                newBoard.calculateBoardValue(); //calculate board-value for bot
                 return newBoard;
             }
         }
@@ -79,10 +76,24 @@ public class ConnectFour implements Board, Cloneable {
 
     @Override
     public Board machineMove() {
-        currentPlayer = players[1];
+
+        // switch current player to machine
+        switchPlayer(true);
         gameTree = generateGameTree(this, level);
-        currentPlayer = players[0];
-        return null;
+
+        int largest = 0;
+        for (int i = 1; i < COLS; i++) {
+            if (gameTree[largest].boardValue < gameTree[i].boardValue) {
+                largest = i;
+            }
+        }
+
+        ConnectFour machineMove = (ConnectFour) move(largest + 1);
+
+        //switch current player to human
+        machineMove.switchPlayer(false);
+
+        return machineMove;
     }
 
     @Override
@@ -168,15 +179,31 @@ public class ConnectFour implements Board, Cloneable {
     private ConnectFour[] generateGameTree(ConnectFour current, int depth) {
 
         ConnectFour[] gameTree = new ConnectFour[7];
+        boolean addMaximum;
         for (int i = 0; i < depth; i++) {
+            addMaximum = chooseMaximum(depth);
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
+                newBoard.calculateBoardValue(addMaximum);
                 gameTree[col] = newBoard;
                 gameTree[col].gameTree = generateGameTree(gameTree[col],
                         depth - 1);
             }
         }
         return gameTree;
+    }
+
+    private boolean chooseMaximum(int depth) {
+        if (getFirstPlayer().isMachine()) {
+            if (depth % 2 == 0) {
+                return true;
+            }
+        } else {
+            if (depth % 2 == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -339,12 +366,12 @@ public class ConnectFour implements Board, Cloneable {
         int valueP2 = 0;
 
         //counting checkers of each player for each column
-        for (int i = 1; i <= COLS; i++) {
+        for (int i = 1; i < COLS - 1; i++) {
 
             int checkersP1 = 0; //Number of checkers in column for player 1
             int checkersP2 = 0;
             for (int row = 0; row < ROWS; row++) {
-                Checker currChecker = currBoard[row][i - 1];
+                Checker currChecker = currBoard[row][i];
                 if (currChecker != null) {
                     Player owner = currChecker.getOwner();
 
@@ -357,8 +384,18 @@ public class ConnectFour implements Board, Cloneable {
                 }
             }
 
-            valueP1 += i * checkersP1;
-            valueP2 += i * checkersP2;
+            int multiplicator = i;
+
+            if (i == 4) {
+                multiplicator = 2;
+            }
+
+            if (i == 5) {
+                multiplicator = 1;
+            }
+
+            valueP1 += multiplicator * checkersP1;
+            valueP2 += multiplicator * checkersP2;
         }
 
         //detect which player is the bot
@@ -369,34 +406,68 @@ public class ConnectFour implements Board, Cloneable {
         }
     }
 
-    public void calculateValues() {
-        int q = getCheckerValue();
-        int p = groups.calculateValue();
-        System.out.println(q);
-        System.out.println(p);
-    }
-
-    private void calculateBoardValue() {
+    private void calculateBoardValue(boolean addMaximumToValue) {
         boardValue = getCheckerValue() + groups.calculateValue();
 
-        if(groups.isBotWinPossible()) {
+        if (groups.isBotWinPossible()) {
             boardValue += 500000;
         }
-    }
 
+        if (!isGameTreeNull()) {
+            Comparator<ConnectFour> comparator
+                    = (v1, v2) -> Integer.compare(v1.boardValue, v2.boardValue);
+            ConnectFour maxMin;
 
-    /*
-    /**
-     * Switches between players if the game is no botgame
-     *
-    private void switchPlayer() {
-        if (!botGame) {
-            if (currentPlayer.equals(players[0])) {
-                currentPlayer = players[1];
+            if (addMaximumToValue) {
+                // if machine move get node with highest board value of tree
+                maxMin = Arrays.stream(gameTree).max(comparator).get();
             } else {
-                currentPlayer = players[0];
+                //else with lowest (human move)
+                maxMin = Arrays.stream(gameTree).min(comparator).get();
+            }
+
+            // add value to current board
+            if (maxMin != null) {
+                boardValue += maxMin.boardValue;
             }
         }
     }
-    */
+
+    private boolean isGameTreeNull() {
+        for (int i = 0; i < gameTree.length; i++) {
+            if (gameTree[i] != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Switches between players
+     * Requirement for this method
+     * @param toMachine
+     */
+    private void switchPlayer(boolean toMachine) {
+
+        if (players.length > 0) {
+            Player machine;
+            Player human;
+
+            if (players[0].isMachine()) {
+                machine = players[0];
+                human = players[1];
+            } else {
+                machine = players[1];
+                human = players[0];
+            }
+
+            if (toMachine) {
+                currentPlayer = machine;
+            } else {
+                currentPlayer = human;
+            }
+        }
+    }
+
 }
