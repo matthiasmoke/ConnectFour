@@ -24,8 +24,6 @@ public class ConnectFour implements Board, Cloneable {
         currentPlayer = players[0];
         players[1] = new Player('O', true);
         groups = new GroupManager(players[0], players[1]);
-
-        //botGame = true;
     }
 
 
@@ -40,7 +38,6 @@ public class ConnectFour implements Board, Cloneable {
         currentPlayer = players[0];
         players[1] = player2;
         groups = new GroupManager(players[0], players[1]);
-        //botGame = false;
     }
 
     @Override
