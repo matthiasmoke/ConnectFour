@@ -35,6 +35,9 @@ public class Checker implements Cloneable{
         return position;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Checker clone() {
         Checker copy;

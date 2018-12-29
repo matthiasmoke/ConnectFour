@@ -14,10 +14,9 @@ public class ConnectFour implements Board, Cloneable {
     private boolean gameOver = false;
     private ConnectFour[] gameTree = new ConnectFour[7];
 
-    //private boolean botGame;
-
     /**
-     * Default constructor for game
+     * Default constructor for game.
+     * Automatically sets players.
      */
     public ConnectFour() {
         players[0] = new Player('X');
@@ -28,7 +27,7 @@ public class ConnectFour implements Board, Cloneable {
 
 
     /**
-     * Constructor for two players (can be used for multiplayer in the future)
+     * Constructor for two players
      *
      * @param player1 Beginning player.
      * @param player2 Second player.
@@ -40,11 +39,17 @@ public class ConnectFour implements Board, Cloneable {
         groups = new GroupManager(players[0], players[1]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Player getFirstPlayer() {
         return players[0];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Board move(int col) {
         if (gameOver) {
@@ -71,6 +76,9 @@ public class ConnectFour implements Board, Cloneable {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Board machineMove() {
 
@@ -93,26 +101,41 @@ public class ConnectFour implements Board, Cloneable {
         return machineMove;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setLevel(int level) {
         this.level = level;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isGameOver() {
         return gameOver;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Player getWinner() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<Coordinates2D> getWitness() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Player getSlot(int row, int col) {
         int arrayRow = row - 1;
@@ -124,6 +147,9 @@ public class ConnectFour implements Board, Cloneable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Board clone() {
         ConnectFour copy;
@@ -144,12 +170,14 @@ public class ConnectFour implements Board, Cloneable {
             }
         }
 
-        //copy player array and group lists
-        copy.players = players.clone();
-
+        //deep copy groups
+        copy.groups = groups.clone();
         return copy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
@@ -176,12 +204,14 @@ public class ConnectFour implements Board, Cloneable {
     private ConnectFour[] generateGameTree(ConnectFour current, int depth) {
 
         ConnectFour[] gameTree = new ConnectFour[7];
-        boolean addMaximum;
+        boolean machineDraw;
         for (int i = 0; i < depth; i++) {
-            addMaximum = chooseMaximum(depth);
+            //detect if generated move is made by machine or human
+            machineDraw = isMachineDraw(depth);
+            current.switchPlayer(machineDraw);
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
-                newBoard.calculateBoardValue(addMaximum);
+                newBoard.calculateBoardValue(machineDraw);
                 gameTree[col] = newBoard;
                 gameTree[col].gameTree = generateGameTree(gameTree[col],
                         depth - 1);
@@ -190,17 +220,12 @@ public class ConnectFour implements Board, Cloneable {
         return gameTree;
     }
 
-    private boolean chooseMaximum(int depth) {
+    private boolean isMachineDraw(int depth) {
         if (getFirstPlayer().isMachine()) {
-            if (depth % 2 == 0) {
-                return true;
-            }
+            return depth % 2 == 0;
         } else {
-            if (depth % 2 == 1) {
-                return true;
-            }
+            return depth % 2 == 1;
         }
-        return false;
     }
 
     /**
@@ -231,12 +256,12 @@ public class ConnectFour implements Board, Cloneable {
         Coordinates2D above = new Coordinates2D(actRow + 1, actCol);
 
         // add checker underneath if possible
-        if (isValidPosition(underneath)) {
+        if (isValidNeighbour(underneath, checker)) {
             surrounding.add(underneath);
         }
 
         // add checker above if possible
-        if (isValidPosition(above)) {
+        if (isValidNeighbour(above, checker)) {
             surrounding.add(above);
         }
 
@@ -261,12 +286,12 @@ public class ConnectFour implements Board, Cloneable {
                 (actRow, actCol + 1);
 
         // add left checker if possible
-        if (isValidPosition(left)) {
+        if (isValidNeighbour(left, checker)) {
             surrounding.add(left);
         }
 
         // add right checker if possible
-        if (isValidPosition(right)) {
+        if (isValidNeighbour(right, checker)) {
             surrounding.add(right);
         }
 
@@ -292,12 +317,12 @@ public class ConnectFour implements Board, Cloneable {
 
         // if possible get checker from:
         // -> right top
-        if (isValidPosition(topRight)) {
+        if (isValidNeighbour(topRight, checker)) {
             surrounding.add(topRight);
         }
 
         // -> left bottom
-        if (isValidPosition(bottomLeft)) {
+        if (isValidNeighbour(bottomLeft, checker)) {
             surrounding.add(bottomLeft);
         }
 
@@ -323,12 +348,12 @@ public class ConnectFour implements Board, Cloneable {
 
         // if possible get checker from
         // -> top left
-        if (isValidPosition(topLeft)) {
+        if (isValidNeighbour(topLeft, checker)) {
             surrounding.add(topLeft);
         }
 
         // -> bottom right
-        if (isValidPosition(bottomRight)) {
+        if (isValidNeighbour(bottomRight, checker)) {
             surrounding.add(bottomRight);
         }
 
@@ -342,14 +367,15 @@ public class ConnectFour implements Board, Cloneable {
      * @param position Position for Checker on the game board
      * @return true if position exists on the board and is not null
      */
-    private boolean isValidPosition(Coordinates2D position) {
+    private boolean isValidNeighbour(Coordinates2D position, Checker checker) {
         int row = position.getRow();
         int col = position.getColumn();
 
         return (row < currBoard.length
                 && col < currBoard[0].length
-                && row > 0 && col > 0
-                && currBoard[row][col] != null);
+                && row >= 0 && col >= 0
+                && currBoard[row][col] != null
+                && currBoard[row][col].getOwner().equals(checker.getOwner()));
     }
 
 

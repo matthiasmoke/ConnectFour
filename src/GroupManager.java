@@ -59,6 +59,9 @@ public class GroupManager implements Cloneable {
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GroupManager clone() {
         GroupManager copy;

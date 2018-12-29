@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.Scanner;
 
 /**
@@ -9,8 +8,9 @@ import java.util.Scanner;
  */
 public final class Shell {
 
-    private static final String DEFAULT_ERR_MESSAGE
-            = "Error! No valid input...";
+    private static final short ERR_NO_VALID_INPUT = 0;
+    private static final short ERR_NOT_INITIALIZED = 1;
+    private static final short ERR_ACTION_NOT_POSSIBLE = 2;
     private static final String MSG_VICTORY = "Congratulations! You won.";
     private static final String MSG_DEFEAT = "Sorry! Machine wins";
     private static final String[] COMMANDS =
@@ -18,9 +18,8 @@ public final class Shell {
                     "new", "level", "switch", "move", "witness", "print",
                     "help", "quit"
             };
-
     private static boolean run;
-    private static ConnectFour game;
+    private static Board game;
     private static int level = 0;
     private static boolean levelIsSet = false;
 
@@ -31,8 +30,8 @@ public final class Shell {
     /**
      * Main method that starts the shell.
      *
-     * @param args main
-     * @throws IOException Occurs on
+     * @param args
+     * @throws IOException Occurs on wrong usage.
      */
     public static void main(String[] args) throws IOException {
         BufferedReader reader
@@ -71,9 +70,7 @@ public final class Shell {
 
         if (sc.hasNext()) {
             command = sc.next();
-
             switch (command.charAt(0)) {
-
                 case 'n':
                     createNewGame(new Player('X'),
                             new Player('O', true));
@@ -97,9 +94,7 @@ public final class Shell {
                     break;
 
                 case 'p':
-                    if (game != null) {
-                        System.out.println(game.toString());
-                    }
+                    print();
                     break;
 
                 case 'h':
@@ -111,23 +106,31 @@ public final class Shell {
                     break;
 
                 default:
-                    System.out.println(DEFAULT_ERR_MESSAGE);
+                    handleError(ERR_NO_VALID_INPUT);
             }
         }
-
         sc.close();
     }
 
+    /**
+     * Creates a new game. Takes over level from old game.
+     *
+     * @param player1 Player one (beginning player)
+     * @param player2 Player two
+     */
     private static void createNewGame(Player player1, Player player2) {
         game = new ConnectFour(player1, player2);
         if (levelIsSet) {
             setLevel(level);
         }
         if (game.getFirstPlayer().isMachine()) {
-            game = (ConnectFour) game.machineMove();
+            game = game.machineMove();
         }
     }
 
+    /**
+     * Switches beginner.
+     */
     private static void switchBeginner() {
         Player p1 = new Player('O', true);
         Player p2 = new Player('X');
@@ -135,16 +138,24 @@ public final class Shell {
     }
 
     /**
-     * Prints coordinates of winning group
+     * Prints coordinates of winning group.
      */
     private static void witness() {
-        for (Coordinates2D c : game.getWitness()) {
-            System.out.println(c.toString());
+        if (initiated()) {
+            if (game.isGameOver()) {
+                for (Coordinates2D c : game.getWitness()) {
+                    System.out.println(c.toString());
+                }
+            } else {
+                handleError(ERR_ACTION_NOT_POSSIBLE);
+            }
+        } else {
+            handleError(ERR_NOT_INITIALIZED);
         }
     }
 
     /**
-     * Prints a help message for the user
+     * Prints a help message for the user.
      */
     private static void printHelpMessage() {
         StringBuilder b = new StringBuilder();
@@ -165,28 +176,43 @@ public final class Shell {
     }
 
     /**
-     * Performs player move if possible
-     *
-     * @param column Column to put Checker in
+     * Prints the current game board.
      */
-    private static void move(int column) {
-        if (column > 0 && column < 8) {
-            Board playerMove = game.move(column);
-            if (playerMove != null) {
-                game = (ConnectFour) playerMove;
-                game = (ConnectFour) game.machineMove();
-            } else {
-                //TODO
-            }
+    private static void print() {
+        if (initiated()) {
+            System.out.println(game);
         } else {
-            System.out.println(DEFAULT_ERR_MESSAGE);
+            handleError(ERR_NOT_INITIALIZED);
         }
     }
 
     /**
-     * Sets game level
+     * Performs player move if possible.
      *
-     * @param level Level for game (values from 1 to 5 possible)
+     * @param column Column to put Checker in.
+     */
+    private static void move(int column) {
+        if (initiated()) {
+            if (column > 0 && column < 8) {
+                Board playerMove = game.move(column);
+                if (playerMove != null) {
+                    game = playerMove;
+                    game = game.machineMove();
+                } else {
+                    handleError(ERR_ACTION_NOT_POSSIBLE);
+                }
+            } else {
+                handleError(ERR_NO_VALID_INPUT);
+            }
+        } else {
+            handleError(ERR_NOT_INITIALIZED);
+        }
+    }
+
+    /**
+     * Sets game level.
+     *
+     * @param level Level for game (values from 1 to 5 possible).
      */
     private static void setLevel(int level) {
         if (initiated()) {
@@ -194,13 +220,18 @@ public final class Shell {
                 game.setLevel(level);
                 levelIsSet = true;
             } else {
-                System.out.println(DEFAULT_ERR_MESSAGE);
+                handleError(ERR_NO_VALID_INPUT);
             }
         } else {
-            //TODO
+            handleError(ERR_NOT_INITIALIZED);
         }
     }
 
+    /**
+     * Checks if game is initiated.
+     *
+     * @return true if game is running.
+     */
     private static boolean initiated() {
         return game != null;
     }
@@ -216,6 +247,26 @@ public final class Shell {
             return sc.nextInt();
         } else {
             return 0;
+        }
+    }
+
+    /**
+     * Prints message by certain error code.
+     *
+     * @param errorCode Error code to decide which message to print.
+     */
+    private static void handleError(int errorCode) {
+
+        // (IDE automatically shifts case, and I wont shift it back)
+        switch (errorCode) {
+            case ERR_NO_VALID_INPUT:
+                System.out.println("Error! No valid input...");
+                break;
+            case  ERR_NOT_INITIALIZED:
+                System.out.println("Error! Game has not started yet!");
+                break;
+            case  ERR_ACTION_NOT_POSSIBLE:
+                System.out.println("Error! Action not possible");
         }
     }
 }
