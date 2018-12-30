@@ -35,6 +35,9 @@ public class Coordinates2D implements Cloneable{
         return posCol;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Coordinates2D clone() {
         Coordinates2D copy;
@@ -47,6 +50,9 @@ public class Coordinates2D implements Cloneable{
         return copy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return String.format("(%d, %d)", posCol, posRow);
