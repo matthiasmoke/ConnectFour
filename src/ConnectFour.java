@@ -13,6 +13,8 @@ public class ConnectFour implements Board, Cloneable {
     private int level = 4;
     private boolean gameOver = false;
     private ConnectFour[] gameTree = new ConnectFour[7];
+    int p;
+    int q;
 
     /**
      * Default constructor for game.
@@ -85,16 +87,17 @@ public class ConnectFour implements Board, Cloneable {
         // switch current player to machine
         switchPlayer(true);
         gameTree = generateGameTree(this, level);
+        calculateValues(gameTree, level);
 
         int largest = 0;
-        for (int i = 1; i < COLS; i++) {
-            if (gameTree[largest].boardValue < gameTree[i].boardValue) {
+        for (int i = COLS - 1; i >= 0; i--) {
+            if (gameTree[largest].boardValue <= gameTree[i].boardValue) {
                 largest = i;
             }
         }
 
         ConnectFour machineMove = (ConnectFour) move(largest + 1);
-
+        gameTree = null;
         //switch current player to human
         machineMove.switchPlayer(false);
 
@@ -211,7 +214,6 @@ public class ConnectFour implements Board, Cloneable {
             current.switchPlayer(machineDraw);
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
-                newBoard.calculateBoardValue(machineDraw);
                 gameTree[col] = newBoard;
                 gameTree[col].gameTree = generateGameTree(gameTree[col],
                         depth - 1);
@@ -225,6 +227,16 @@ public class ConnectFour implements Board, Cloneable {
             return depth % 2 == 0;
         } else {
             return depth % 2 == 1;
+        }
+    }
+
+    private void calculateValues(ConnectFour[] currentGameTree, int depth) {
+        if (depth > 0) {
+            boolean machineDraw = isMachineDraw(depth);
+            for (int i = 0; i < COLS; i++) {
+                calculateValues(currentGameTree[i].gameTree, depth - 1);
+                currentGameTree[i].calculateBoardValue(machineDraw);
+            }
         }
     }
 
@@ -313,7 +325,7 @@ public class ConnectFour implements Board, Cloneable {
                 (actRow + 1, actCol + 1);
 
         Coordinates2D bottomLeft = new Coordinates2D
-                (actRow + 1, actCol - 1);
+                (actRow - 1, actCol - 1);
 
         // if possible get checker from:
         // -> right top
@@ -430,6 +442,8 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     private void calculateBoardValue(boolean addMaximumToValue) {
+        int q = getCheckerValue();
+        int p = groups.calculateValue();
         boardValue = getCheckerValue() + groups.calculateValue();
 
         if (groups.isBotWinPossible()) {
