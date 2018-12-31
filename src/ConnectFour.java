@@ -13,8 +13,6 @@ public class ConnectFour implements Board, Cloneable {
     private int level = 4;
     private boolean gameOver = false;
     private ConnectFour[] gameTree = new ConnectFour[7];
-    int p;
-    int q;
 
     /**
      * Default constructor for game.
@@ -71,7 +69,7 @@ public class ConnectFour implements Board, Cloneable {
                         currentPlayer);
 
                 newBoard.currBoard[i][column] = newChecker;
-                groupSearch(newChecker); //check groups for new checker
+                newBoard.groupSearch(newChecker); //check groups for new checker
                 return newBoard;
             }
         }
