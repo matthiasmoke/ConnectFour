@@ -63,9 +63,11 @@ public final class Shell {
     private static void init() {
         evalInput("n");
         evalInput("l 1");
+        evalInput("s");
+        evalInput("l 3");
+        evalInput("m 7");
+        evalInput("m 6");
         evalInput("m 4");
-        evalInput("m 1");
-        evalInput("m 2");
     }
 
     /**

@@ -212,28 +212,32 @@ public class ConnectFour implements Board, Cloneable {
             current.switchPlayer(machineDraw);
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
-                gameTree[col] = newBoard;
-                gameTree[col].gameTree = generateGameTree(gameTree[col],
-                        depth - 1);
+
+                if (newBoard != null) {
+                    gameTree[col] = newBoard;
+                    gameTree[col].gameTree = generateGameTree(gameTree[col],
+                            depth - 1);
+                } else {
+                    gameTree[col] = current;
+                }
             }
         }
         return gameTree;
     }
 
     private boolean isMachineDraw(int depth) {
-        if (getFirstPlayer().isMachine()) {
-            return depth % 2 == 0;
-        } else {
-            return depth % 2 == 1;
-        }
+        return depth % 2 == 1;
     }
 
     private void calculateValues(ConnectFour[] currentGameTree, int depth) {
         if (depth > 0) {
             boolean machineDraw = isMachineDraw(depth);
             for (int i = 0; i < COLS; i++) {
-                calculateValues(currentGameTree[i].gameTree, depth - 1);
-                currentGameTree[i].calculateBoardValue(machineDraw);
+                if (currentGameTree[i] != null) {
+                    calculateValues(currentGameTree[i].gameTree,
+                            depth - 1);
+                    currentGameTree[i].calculateBoardValue(machineDraw);
+                }
             }
         }
     }
