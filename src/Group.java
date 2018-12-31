@@ -76,9 +76,13 @@ public class Group implements Cloneable{
             throw new Error(ex);
         }
 
-        for (int i = 0; i < members.size(); i++) {
-            copy.members.set(i, members.get(i).clone());
+        List<Coordinates2D> membersCopy =  new ArrayList<>(4);
+
+        for (Coordinates2D member : members) {
+            membersCopy.add(member);
         }
+
+        copy.members = membersCopy;
 
         return copy;
     }
