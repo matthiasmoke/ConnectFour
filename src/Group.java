@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
 public class Group implements Cloneable{
 
     private GroupType type;
-    private List<Coordinates2D> members = new LinkedList<>();
+    private List<Coordinates2D> members = new ArrayList<>(4);
 
     /**
      * Initializes a group with members and certain type
@@ -43,8 +44,10 @@ public class Group implements Cloneable{
      * @return true if given member is part of the group.
      */
     public boolean hasMember(Coordinates2D member) {
+        int col = member.getColumn();
+        int row = member.getRow();
         for (Coordinates2D coordinate : members) {
-            if (coordinate.equals(member)) {
+            if (col == coordinate.getColumn() && row == coordinate.getRow()) {
                 return true;
             }
         }
@@ -73,10 +76,10 @@ public class Group implements Cloneable{
             throw new Error(ex);
         }
 
-        // deep copy members
-        for (Coordinates2D member : members) {
-            copy.members.add(member.clone());
+        for (int i = 0; i < members.size(); i++) {
+            copy.members.set(i, members.get(i).clone());
         }
+
         return copy;
     }
 }

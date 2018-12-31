@@ -36,6 +36,7 @@ public final class Shell {
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
+        init();
         runShell(reader);
 
     }
@@ -57,6 +58,14 @@ public final class Shell {
                 evalInput(input.toLowerCase());
             }
         }
+    }
+
+    private static void init() {
+        evalInput("n");
+        evalInput("l 1");
+        evalInput("m 4");
+        evalInput("m 1");
+        evalInput("m 2");
     }
 
     /**

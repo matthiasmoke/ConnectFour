@@ -71,7 +71,7 @@ public class ConnectFour implements Board, Cloneable {
                         currentPlayer);
 
                 newBoard.currBoard[i][column] = newChecker;
-                newBoard.groupSearch(newChecker); //check groups for new checker
+                groupSearch(newChecker); //check groups for new checker
                 return newBoard;
             }
         }
@@ -442,8 +442,6 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     private void calculateBoardValue(boolean addMaximumToValue) {
-        int q = getCheckerValue();
-        int p = groups.calculateValue();
         boardValue = getCheckerValue() + groups.calculateValue();
 
         if (groups.isBotWinPossible()) {
