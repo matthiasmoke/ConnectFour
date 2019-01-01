@@ -93,6 +93,13 @@ public class GroupManager implements Cloneable {
                             && !currGroup.hasMember(checker.getPosition())) {
 
                         currGroup.addMember(checker.getPosition());
+
+                        // detect winner and save witness
+                        if (currGroup.getMembers().size() == 4) {
+                            Player winner = checker.getOwner();
+                            winner.setWinner(true);
+                            winner.setWitness(currGroup.getMembers());
+                        }
                         noGroup = false;
                     }
                 }

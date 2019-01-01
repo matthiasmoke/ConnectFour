@@ -11,8 +11,10 @@ public class ConnectFour implements Board, Cloneable {
     private Player currentPlayer;
     private int boardValue;
     private int level = 4;
-    private boolean gameOver = false;
     private ConnectFour[] gameTree = new ConnectFour[7];
+    int p;
+    int q;
+    int special;
 
     /**
      * Default constructor for game.
@@ -52,7 +54,7 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Board move(int col) {
-        if (gameOver) {
+        if (isGameOver()) {
             throw new IllegalMoveException();
         }
 
@@ -115,7 +117,11 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public boolean isGameOver() {
-        return gameOver;
+        if (players[0].isWinner() || players[1].isWinner()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -226,7 +232,11 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     private boolean isMachineDraw(int depth) {
-        return depth % 2 == 1;
+        if (level % 2 == 0) {
+            return depth % 2 == 0;
+        } else {
+            return depth % 2 == 1;
+        }
     }
 
     private void calculateValues(ConnectFour[] currentGameTree, int depth) {
@@ -236,7 +246,7 @@ public class ConnectFour implements Board, Cloneable {
                 if (currentGameTree[i] != null) {
                     calculateValues(currentGameTree[i].gameTree,
                             depth - 1);
-                    currentGameTree[i].calculateBoardValue(machineDraw);
+                    currentGameTree[i].calculateBoardValue(!machineDraw);
                 }
             }
         }
@@ -444,7 +454,11 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     private void calculateBoardValue(boolean addMaximumToValue) {
-        boardValue = getCheckerValue() + groups.calculateValue();
+        //boardValue = getCheckerValue() + groups.calculateValue();
+        q = getCheckerValue();
+        p = groups.calculateValue();
+
+        boardValue = q + p;
 
         if (groups.isBotWinPossible()) {
             boardValue += 500000;
@@ -465,6 +479,7 @@ public class ConnectFour implements Board, Cloneable {
 
             // add value to current board
             if (maxMin != null) {
+                special = maxMin.boardValue;
                 boardValue += maxMin.boardValue;
             }
         }

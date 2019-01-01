@@ -1,3 +1,5 @@
+import java.util.Collection;
+
 /**
  * Represents a player in the game
  */
@@ -6,6 +8,8 @@ public class Player {
     //private Color checkerColor
     private char symbol;
     private boolean isMachine;
+    private boolean isWinner;
+    private Collection<Coordinates2D> witness;
 
     /**
      * Creates a new human player.
@@ -42,4 +46,19 @@ public class Player {
         return isMachine;
     }
 
+    public void setWinner(boolean isWinner) {
+        this.isWinner = isWinner;
+    }
+
+    public boolean isWinner() {
+        return isWinner;
+    }
+
+    public void setWitness(Collection<Coordinates2D> witness) {
+        this.witness = witness;
+    }
+
+    public Collection<Coordinates2D> getWitness() {
+        return witness;
+    }
 }

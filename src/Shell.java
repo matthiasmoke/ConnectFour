@@ -68,6 +68,13 @@ public final class Shell {
         evalInput("m 7");
         evalInput("m 6");
         evalInput("m 4");
+        evalInput("l 2");
+        evalInput("m 6");
+        evalInput("m 2");
+        evalInput("m 7");
+        evalInput("m 3");
+        evalInput("m 5");
+        evalInput("m 6");
     }
 
     /**
