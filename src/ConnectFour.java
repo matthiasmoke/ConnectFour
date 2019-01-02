@@ -1,4 +1,8 @@
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Arrays;
 
 /**
  * Class to represent the game-board
@@ -12,9 +16,6 @@ public class ConnectFour implements Board, Cloneable {
     private int boardValue;
     private int level = 4;
     private ConnectFour[] gameTree = new ConnectFour[7];
-    int p;
-    int q;
-    int special;
 
     /**
      * Default constructor for game.
@@ -460,11 +461,7 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     private void calculateBoardValue(boolean addMaximumToValue) {
-        //boardValue = getCheckerValue() + groups.calculateValue();
-        q = getCheckerValue();
-        p = groups.calculateValue();
-
-        boardValue = q + p;
+        boardValue = getCheckerValue() + groups.calculateValue();
 
         if (groups.isBotWinPossible()) {
             boardValue += 500000;
@@ -484,10 +481,7 @@ public class ConnectFour implements Board, Cloneable {
             }
 
             // add value to current board
-            if (maxMin != null) {
-                special = maxMin.boardValue;
-                boardValue += maxMin.boardValue;
-            }
+            boardValue += maxMin.boardValue;
         }
     }
 
@@ -502,9 +496,11 @@ public class ConnectFour implements Board, Cloneable {
     }
 
     /**
-     * Switches between players
-     * Requirement for this method
-     * @param toMachine
+     * Switches between players.
+     * Requirement for this method is that one machine,
+     * and one human player exist.
+     *
+     * @param toMachine Switch to machine or not.
      */
     private void switchPlayer(boolean toMachine) {
 
@@ -527,5 +523,4 @@ public class ConnectFour implements Board, Cloneable {
             }
         }
     }
-
 }
