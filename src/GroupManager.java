@@ -2,29 +2,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Manages groups for a ConnectFour game
+ */
 public class GroupManager implements Cloneable {
 
     private List<Group> groupsOfPlayer1 = new ArrayList<>();
     private List<Group> groupsOfPlayer2 = new ArrayList<>();
     private Player[] players = new Player[2];
 
+    /**
+     * Creates a new GroupManager for two players.
+     *
+     * @param player1 Player one.
+     * @param player2 Player two.
+     */
     public GroupManager(Player player1, Player player2) {
         players[0] = player1;
         players[1] = player2;
     }
 
-    public void check(Checker current, List<Coordinates2D> neighbours,
+    /**
+     * Checks if the neighbours of a checker are in a group with certain type.
+     *
+     * @param checker Checker that neighbours belong to.
+     * @param neighbours Neighbours of the given checker.
+     * @param type Group type to check for.
+     */
+    public void check(Checker checker, List<Coordinates2D> neighbours,
                       GroupType type) {
 
         if (neighbours.size() > 0) {
-            if (current.getOwner().equals(players[0])) {
-                checkGroups(current, neighbours, type, groupsOfPlayer1);
+
+            // Determine to whom the given checker belongs to and calls
+            // checkGroups() with fitting parameters
+            if (checker.getOwner().equals(players[0])) {
+                checkGroups(checker, neighbours, type, groupsOfPlayer1);
             } else {
-                checkGroups(current, neighbours, type, groupsOfPlayer2);
+                checkGroups(checker, neighbours, type, groupsOfPlayer2);
             }
         }
     }
 
+    /**
+     * Checks if a machine win is possible.
+     *
+     * @return True if machine is able to win.
+     */
     public boolean isBotWinPossible() {
         for (Group group : getMachineGroups()) {
             if (group.getMembers().size() == Board.CONNECT) {
@@ -77,6 +101,14 @@ public class GroupManager implements Cloneable {
         return copy;
     }
 
+    /**
+     * Checks if the neighbours of a checker are in a group with certain type.
+     *
+     * @param checker Checker that neighbours belong to.
+     * @param neighbours Neighbours of the checker.
+     * @param type Type of group to check for.
+     * @param allGroups Existing groups of certain player.
+     */
     private void checkGroups(Checker checker, List<Coordinates2D> neighbours,
                              GroupType type, List<Group> allGroups) {
         //get all groups with certain group-type
@@ -85,50 +117,55 @@ public class GroupManager implements Cloneable {
                 .filter(g -> g.getType() == type).collect(Collectors.toList());
 
         if (groups.size() > 0) {
-            for (Coordinates2D neighbour : neighbours) {
-                boolean noGroup = true;
-                for (Group currGroup : groups) {
-                    //is neighbour already in a group?
-                    if (currGroup.hasMember(neighbour)
-                            && !currGroup.hasMember(checker.getPosition())) {
+            boolean noGroup = true;
 
-                        currGroup.addMember(checker.getPosition());
+            for (Group currGroup : groups) {
+
+                int iterator = 0;
+                boolean iterate = true;
+                while (iterator < neighbours.size() && iterate) {
+
+                    //is one of the neighbours in a group?
+                    if (currGroup.hasMember(neighbours.get(iterator))) {
+
+                        //add all to the existing group
+                        neighbours.add(checker.getPosition());
+                        currGroup.addMembers(neighbours);
 
                         // detect winner and save witness
                         if (currGroup.getMembers().size() == 4) {
                             Player winner = checker.getOwner();
-                            winner.setWinner(true);
-                            winner.setWitness(currGroup.getMembers());
+                            //winner.setWinner(true);
+                            //winner.setWitness(currGroup.getMembers());
                         }
-                        noGroup = false;
+
+                        iterate = false; // stop iterating
+                        noGroup = false; // group found
+                    } else {
+                        iterator++;
                     }
                 }
-                // if neighbour is not in a group, a new one is created
-                if (noGroup) {
-                    allGroups.add(new Group(checker.getPosition(),
-                            neighbour, type));
-                }
             }
+
+            // if neighbours are not in a group, a new one is created
+            if (noGroup) {
+                neighbours.add(checker.getPosition());
+                allGroups.add(new Group(neighbours, type));
+            }
+
         } else {
-            allGroups.add(createNewGroup(checker, neighbours, type));
+            neighbours.add(checker.getPosition());
+            allGroups.add(new Group(neighbours, type));
         }
     }
 
-    private Group createNewGroup(Checker checker,
-                                 List<Coordinates2D> neighbours,
-                                 GroupType type) {
-
-        Group newGroup = new Group(checker.getPosition(),
-                neighbours.get(0), type);
-
-        if (neighbours.size() > 1) {
-            for (int i = 1; i < neighbours.size(); i++) {
-                newGroup.addMember(neighbours.get(i));
-            }
-        }
-        return newGroup;
-    }
-
+    /**
+     * Count number of groups with certain member size.
+     *
+     * @param memberSize Size of groups to count.
+     * @param groups Groups of a certain player to count.
+     * @return Number of groups that were count.
+     */
     private int countGroups(int memberSize, List<Group> groups) {
         if (groups.size() > 0) {
             return (int) groups.stream()
@@ -139,28 +176,39 @@ public class GroupManager implements Cloneable {
         }
     }
 
+    /**
+     * Deep copies a group list.
+     *
+     * @param list List to clone.
+     * @return Clone of the list.
+     */
     private List<Group> deepCopyGroupList(List<Group> list) {
         List<Group> clone = new ArrayList<>();
 
         for (Group group : list) {
             clone.add(group.clone());
         }
-
         return clone;
     }
 
+    /**
+     * Get the list with groups of machine.
+     *
+     * @return List with machine groups.
+     */
     private List<Group> getMachineGroups() {
         if (players[0].isMachine()) {
             return groupsOfPlayer1;
-        }
-
-        if (players[1].isMachine()) {
+        } else {
             return groupsOfPlayer2;
         }
-
-        return null;
     }
 
+    /**
+     * Get the list with groups of human.
+     *
+     * @return List with human groups.
+     */
     private List<Group> getHumanGroups() {
         if (!players[0].isMachine()) {
             return groupsOfPlayer1;

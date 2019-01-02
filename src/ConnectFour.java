@@ -177,8 +177,14 @@ public class ConnectFour implements Board, Cloneable {
             }
         }
 
-        //deep copy groups
+        //deep copy groups and current player
         copy.groups = groups.clone();
+        copy.currentPlayer = currentPlayer.clone();
+
+        Player[] newPlayers = new Player[2];
+        newPlayers[0] = players[0].clone();
+        newPlayers[1] = players[1].clone();
+
         return copy;
     }
 
@@ -198,9 +204,9 @@ public class ConnectFour implements Board, Cloneable {
                 Checker currSlot = currBoard[row][col];
 
                 if (currSlot == null) {
-                    b.append(".");
+                    b.append(". ");
                 } else {
-                    b.append(currSlot.getOwner().getSymbol());
+                    b.append(currSlot.getOwner().getSymbol()).append(" ");
                 }
             }
             newLine = "\n";

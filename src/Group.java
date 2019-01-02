@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +20,11 @@ public class Group implements Cloneable{
     public Group(Coordinates2D first, Coordinates2D second, GroupType type) {
         members.add(first);
         members.add(second);
+        this.type = type;
+    }
+
+    public Group(Collection<Coordinates2D> members, GroupType type) {
+        addMembers(members);
         this.type = type;
     }
 
@@ -61,6 +67,15 @@ public class Group implements Cloneable{
     public void addMember(Coordinates2D member) {
         if (members.size() < Board.CONNECT) {
             members.add(member);
+        }
+    }
+
+    public void addMembers(Collection<Coordinates2D> memberList) {
+        for (Coordinates2D member : memberList) {
+            // if group size smaller than 4 and member isnt already member
+            if (members.size() < Board.CONNECT && !hasMember(member)) {
+                members.add(member);
+            }
         }
     }
 

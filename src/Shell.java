@@ -60,6 +60,9 @@ public final class Shell {
         }
     }
 
+    /**
+     * Plays sample game for debugging
+     */
     private static void init() {
         evalInput("n");
         evalInput("l 1");
@@ -78,7 +81,7 @@ public final class Shell {
     }
 
     /**
-     * Evals the input.
+     * Evaluates the input.
      *
      * @param input Input user has given.
      */

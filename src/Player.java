@@ -1,15 +1,16 @@
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Represents a player in the game
  */
-public class Player {
+public class Player implements Cloneable{
 
     //private Color checkerColor
     private char symbol;
     private boolean isMachine;
     private boolean isWinner;
-    private Collection<Coordinates2D> witness;
+    private Collection<Coordinates2D> witness = new ArrayList<>(4);
 
     /**
      * Creates a new human player.
@@ -60,5 +61,26 @@ public class Player {
 
     public Collection<Coordinates2D> getWitness() {
         return witness;
+    }
+
+    /**
+     *{@inheritDoc}
+     */
+    @Override
+    public Player clone() {
+        Player clone;
+
+        try {
+            clone = (Player) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new Error(ex);
+        }
+
+        Collection<Coordinates2D> witnessCopy = new ArrayList<>(4);
+        for (Coordinates2D coordinates : witness) {
+            witnessCopy.add(coordinates);
+        }
+        clone.witness = witnessCopy;
+        return clone;
     }
 }
