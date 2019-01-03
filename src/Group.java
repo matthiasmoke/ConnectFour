@@ -12,17 +12,11 @@ public class Group implements Cloneable{
     private List<Coordinates2D> members = new ArrayList<>(4);
 
     /**
-     * Initializes a group with members and certain type
-     * @param first First member of the group.
-     * @param second Second member of the group.
-     * @param type Type members of the group are arranged
+     * Initializes a group with members and certain type.
+     *
+     * @param members Members of the group.
+     * @param type Type members of the group are arranged.
      */
-    public Group(Coordinates2D first, Coordinates2D second, GroupType type) {
-        members.add(first);
-        members.add(second);
-        this.type = type;
-    }
-
     public Group(Collection<Coordinates2D> members, GroupType type) {
         addMembers(members);
         this.type = type;
@@ -58,16 +52,6 @@ public class Group implements Cloneable{
             }
         }
         return false;
-    }
-
-    /**
-     * Adds a member to the group if it has less than four members.
-     * @param member Member to add.
-     */
-    public void addMember(Coordinates2D member) {
-        if (members.size() < Board.CONNECT) {
-            members.add(member);
-        }
     }
 
     public void addMembers(Collection<Coordinates2D> memberList) {

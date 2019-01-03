@@ -16,6 +16,7 @@ public class ConnectFour implements Board, Cloneable {
     private int boardValue;
     private int level = 4;
     private ConnectFour[] gameTree = new ConnectFour[7];
+    private boolean gameOver = false;
 
     /**
      * Default constructor for game.
@@ -55,7 +56,7 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Board move(int col) {
-        if (isGameOver()) {
+        if (gameOver) {
             throw new IllegalMoveException();
         }
 
@@ -77,6 +78,7 @@ public class ConnectFour implements Board, Cloneable {
             }
         }
         return null;
+        //TODO exception when not players turn
     }
 
     /**
@@ -118,7 +120,11 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public boolean isGameOver() {
-        if (players[0].isWinner() || players[1].isWinner()) {
+        Group winningGroup = groups.getWinningGroup();
+
+        if (winningGroup != null) {
+
+
             return true;
         } else {
             return false;
@@ -130,6 +136,13 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Player getWinner() {
+        if (players[0].isWinner()) {
+            return players[0];
+
+        } else if (players[1].isWinner()) {
+            return players[1];
+        }
+
         return null;
     }
 

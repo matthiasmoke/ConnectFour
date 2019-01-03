@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,23 @@ public class GroupManager implements Cloneable {
                 checkGroups(checker, neighbours, type, groupsOfPlayer2);
             }
         }
+    }
+
+    /**
+     * Gets the winning group.
+     *
+     * @return The first group found in manager with four members.
+     */
+    public Group getWinningGroup() {
+        List<Group> winning = getGroupsBySize(Board.CONNECT, groupsOfPlayer1);
+
+        if (winning.size() > 0) {
+            return winning.get(0);
+        } else {
+            winning = getGroupsBySize(Board.CONNECT, groupsOfPlayer2);
+            return winning.get(0);
+        }
+
     }
 
     /**
@@ -168,12 +186,16 @@ public class GroupManager implements Cloneable {
      */
     private int countGroups(int memberSize, List<Group> groups) {
         if (groups.size() > 0) {
-            return (int) groups.stream()
-                    .filter(g -> g.getMembers().size() == memberSize)
-                    .count();
+            return getGroupsBySize(memberSize, groups).size();
         } else {
             return 0;
         }
+    }
+
+    private List<Group> getGroupsBySize(int size, Collection<Group> groups) {
+        return groups.stream()
+                .filter(g -> g.getMembers().size() == size)
+                .collect(Collectors.toList());
     }
 
     /**

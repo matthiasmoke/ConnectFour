@@ -69,7 +69,7 @@ public interface Board extends Cloneable {
      * Checks if game is over. Either one player has won or there is a tie and
      * all slots are filled with tiles.
      *  
-     * @return {@code true} iff the game is over.
+     * @return {@code true} if the game is over.
      */
     boolean isGameOver();
 
