@@ -216,9 +216,18 @@ public final class Shell {
         if (initiated()) {
             if (column > 0 && column < 8) {
                 Board playerMove = game.move(column);
+
                 if (playerMove != null) {
                     game = playerMove;
-                    game = game.machineMove();
+
+                    if (playerMove.isGameOver()) {
+                        System.out.println(MSG_VICTORY);
+                    } else {
+                        game = game.machineMove();
+                        if (game.isGameOver()) {
+                            System.out.println(MSG_DEFEAT);
+                        }
+                    }
                 } else {
                     handleError(ERR_ACTION_NOT_POSSIBLE);
                 }

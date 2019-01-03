@@ -30,7 +30,7 @@ public class GroupManager implements Cloneable {
      * @param neighbours Neighbours of the given checker.
      * @param type Group type to check for.
      */
-    public void check(Checker checker, List<Coordinates2D> neighbours,
+    public void check(Checker checker, List<Checker> neighbours,
                       GroupType type) {
 
         if (neighbours.size() > 0) {
@@ -57,9 +57,12 @@ public class GroupManager implements Cloneable {
             return winning.get(0);
         } else {
             winning = getGroupsBySize(Board.CONNECT, groupsOfPlayer2);
-            return winning.get(0);
-        }
 
+            if (winning.size() > 0) {
+                return winning.get(0);
+            }
+        }
+        return null;
     }
 
     /**
@@ -127,7 +130,7 @@ public class GroupManager implements Cloneable {
      * @param type Type of group to check for.
      * @param allGroups Existing groups of certain player.
      */
-    private void checkGroups(Checker checker, List<Coordinates2D> neighbours,
+    private void checkGroups(Checker checker, List<Checker> neighbours,
                              GroupType type, List<Group> allGroups) {
         //get all groups with certain group-type
         List<Group> groups =
@@ -147,15 +150,8 @@ public class GroupManager implements Cloneable {
                     if (currGroup.hasMember(neighbours.get(iterator))) {
 
                         //add all to the existing group
-                        neighbours.add(checker.getPosition());
+                        neighbours.add(checker);
                         currGroup.addMembers(neighbours);
-
-                        // detect winner and save witness
-                        if (currGroup.getMembers().size() == 4) {
-                            Player winner = checker.getOwner();
-                            //winner.setWinner(true);
-                            //winner.setWitness(currGroup.getMembers());
-                        }
 
                         iterate = false; // stop iterating
                         noGroup = false; // group found
@@ -167,12 +163,12 @@ public class GroupManager implements Cloneable {
 
             // if neighbours are not in a group, a new one is created
             if (noGroup) {
-                neighbours.add(checker.getPosition());
+                neighbours.add(checker);
                 allGroups.add(new Group(neighbours, type));
             }
 
         } else {
-            neighbours.add(checker.getPosition());
+            neighbours.add(checker);
             allGroups.add(new Group(neighbours, type));
         }
     }
@@ -192,6 +188,13 @@ public class GroupManager implements Cloneable {
         }
     }
 
+    /**
+     * Gets a list of groups by size.
+     *
+     * @param size Size that returned groups should have.
+     * @param groups List in that should be searched for groups.
+     * @return A list of group with certain size.
+     */
     private List<Group> getGroupsBySize(int size, Collection<Group> groups) {
         return groups.stream()
                 .filter(g -> g.getMembers().size() == size)

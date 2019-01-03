@@ -9,7 +9,7 @@ import java.util.List;
 public class Group implements Cloneable{
 
     private GroupType type;
-    private List<Coordinates2D> members = new ArrayList<>(4);
+    private List<Checker> members = new ArrayList<>(4);
 
     /**
      * Initializes a group with members and certain type.
@@ -17,21 +17,32 @@ public class Group implements Cloneable{
      * @param members Members of the group.
      * @param type Type members of the group are arranged.
      */
-    public Group(Collection<Coordinates2D> members, GroupType type) {
+    public Group(Collection<Checker> members, GroupType type) {
         addMembers(members);
         this.type = type;
     }
 
     /**
      * Gets members of the group.
+     *
      * @return members of the group.
      */
-    public List<Coordinates2D> getMembers() {
+    public List<Checker> getMembers() {
         return members;
     }
 
     /**
+     * Gets the owner of the group
+     *
+     * @return Owner of the group.
+     */
+    public Player getOwner() {
+        return members.get(0).getOwner();
+    }
+
+    /**
      * Gets type of the group.
+     *
      * @return type of the group.
      */
     public GroupType getType() {
@@ -40,22 +51,24 @@ public class Group implements Cloneable{
 
     /**
      * Checks if group has certain member.
+     *
      * @param member Member that has to be searched for.
      * @return true if given member is part of the group.
      */
-    public boolean hasMember(Coordinates2D member) {
-        int col = member.getColumn();
-        int row = member.getRow();
-        for (Coordinates2D coordinate : members) {
-            if (col == coordinate.getColumn() && row == coordinate.getRow()) {
+    public boolean hasMember(Checker member) {
+        int col = member.getPosition().getColumn();
+        int row = member.getPosition().getRow();
+        for (Checker checker : members) {
+            if (col == checker.getPosition().getColumn()
+                    && row == checker.getPosition().getRow()) {
                 return true;
             }
         }
         return false;
     }
 
-    public void addMembers(Collection<Coordinates2D> memberList) {
-        for (Coordinates2D member : memberList) {
+    public void addMembers(Collection<Checker> memberList) {
+        for (Checker member : memberList) {
             // if group size smaller than 4 and member isnt already member
             if (members.size() < Board.CONNECT && !hasMember(member)) {
                 members.add(member);
@@ -75,9 +88,9 @@ public class Group implements Cloneable{
             throw new Error(ex);
         }
 
-        List<Coordinates2D> membersCopy =  new ArrayList<>(4);
+        List<Checker> membersCopy =  new ArrayList<>(4);
 
-        for (Coordinates2D member : members) {
+        for (Checker member : members) {
             membersCopy.add(member);
         }
 

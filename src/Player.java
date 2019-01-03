@@ -4,7 +4,7 @@ import java.util.Collection;
 /**
  * Represents a player in the game
  */
-public class Player implements Cloneable{
+public class Player implements Cloneable, Comparable {
 
     //private Color checkerColor
     private char symbol;
@@ -82,5 +82,18 @@ public class Player implements Cloneable{
         }
         clone.witness = witnessCopy;
         return clone;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Player player = (Player) o;
+
+        if (this.symbol == player.symbol) {
+            return 0;
+        } else if (this.symbol < player.symbol) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 }

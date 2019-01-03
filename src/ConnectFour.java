@@ -92,6 +92,7 @@ public class ConnectFour implements Board, Cloneable {
         gameTree = generateGameTree(this, level);
         calculateValues(gameTree, level);
 
+        // get largest board value
         int largest = 0;
         for (int i = COLS - 1; i >= 0; i--) {
             if (gameTree[largest].boardValue <= gameTree[i].boardValue) {
@@ -123,7 +124,12 @@ public class ConnectFour implements Board, Cloneable {
         Group winningGroup = groups.getWinningGroup();
 
         if (winningGroup != null) {
-
+            if (winningGroup.getOwner().compareTo(players[0]) == 0) {
+                players[0].setWinner(true);
+            } else {
+                players[1].setWinner(true);
+            }
+            gameOver = true;
 
             return true;
         } else {
@@ -151,6 +157,19 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Collection<Coordinates2D> getWitness() {
+        if (!gameOver) {
+            throw new IllegalStateException("There is no winner available!");
+        }
+
+        List<Coordinates2D> witness = new ArrayList<>(4);
+        Group winningGroup = groups.getWinningGroup();
+
+        for (Checker checker : winningGroup.getMembers()) {
+            witness.add(checker.getPosition());
+        }
+
+        //TODO finish
+
         return null;
     }
 
@@ -291,13 +310,16 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findVerticalNeighbours(Checker checker) {
 
-        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
         // calculate neighbour coordinates
-        Coordinates2D underneath = new Coordinates2D(actRow - 1, actCol);
-        Coordinates2D above = new Coordinates2D(actRow + 1, actCol);
+        Checker underneath = getCheckerByPosition(new Coordinates2D
+                (actRow - 1, actCol));
+
+        Checker above = getCheckerByPosition(new Coordinates2D
+                (actRow + 1, actCol));
 
         // add checker underneath if possible
         if (isValidNeighbour(underneath, checker)) {
@@ -319,15 +341,15 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findHorizontalNeighbours(Checker checker) {
 
-        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Coordinates2D left = new Coordinates2D
-                (actRow, actCol - 1);
+        Checker left = getCheckerByPosition(new Coordinates2D
+                (actRow, actCol - 1));
 
-        Coordinates2D right = new Coordinates2D
-                (actRow, actCol + 1);
+        Checker right = getCheckerByPosition(new Coordinates2D
+                (actRow, actCol + 1));
 
         // add left checker if possible
         if (isValidNeighbour(left, checker)) {
@@ -349,15 +371,15 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findDiagonalRisingMembers(Checker checker) {
 
-        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Coordinates2D topRight = new Coordinates2D
-                (actRow + 1, actCol + 1);
+        Checker topRight = getCheckerByPosition(new Coordinates2D
+                (actRow + 1, actCol + 1));
 
-        Coordinates2D bottomLeft = new Coordinates2D
-                (actRow - 1, actCol - 1);
+        Checker bottomLeft = getCheckerByPosition(new Coordinates2D
+                (actRow - 1, actCol - 1));
 
         // if possible get checker from:
         // -> right top
@@ -380,15 +402,15 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findDiagonalFallingMembers(Checker checker) {
 
-        List<Coordinates2D> surrounding = new ArrayList<>(2);
+        List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Coordinates2D topLeft = new Coordinates2D
-                (actRow + 1, actCol - 1);
+        Checker topLeft = getCheckerByPosition(new Coordinates2D
+                (actRow + 1, actCol - 1));
 
-        Coordinates2D bottomRight = new Coordinates2D
-                (actRow - 1, actCol + 1);
+        Checker bottomRight = getCheckerByPosition(new Coordinates2D
+                (actRow - 1, actCol + 1));
 
         // if possible get checker from
         // -> top left
@@ -404,22 +426,27 @@ public class ConnectFour implements Board, Cloneable {
         groups.check(checker, surrounding, GroupType.DIAGONALFALLING);
     }
 
-    /**
-     * Checks if given coordinates are on the game board and if the given
-     * position is null
-     *
-     * @param position Position for Checker on the game board
-     * @return true if position exists on the board and is not null
-     */
-    private boolean isValidNeighbour(Coordinates2D position, Checker checker) {
+
+    private boolean isValidNeighbour(Checker neighbour, Checker checker) {
+        return neighbour != null
+                && neighbour.getOwner().equals(checker.getOwner());
+    }
+
+    private boolean isValidPosition(Coordinates2D position) {
         int row = position.getRow();
         int col = position.getColumn();
 
-        return (row < currBoard.length
+        return row < currBoard.length
                 && col < currBoard[0].length
-                && row >= 0 && col >= 0
-                && currBoard[row][col] != null
-                && currBoard[row][col].getOwner().equals(checker.getOwner()));
+                && row >= 0 && col >= 0;
+    }
+
+    private Checker getCheckerByPosition(Coordinates2D position) {
+        if (isValidPosition(position)) {
+            return currBoard[position.getRow()][position.getColumn()];
+        }
+
+        return null;
     }
 
 
