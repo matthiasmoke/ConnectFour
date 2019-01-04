@@ -3,11 +3,19 @@
  */
 public class IllegalMoveException extends RuntimeException {
 
-    public IllegalMoveException(){
+    /**
+     * Creates IllegalMoveException.
+     */
+    public IllegalMoveException() {
         super();
     }
 
-    public IllegalMoveException(String message){
+    /**
+     * Creates IllegalMoveException with certain message.
+     *
+     * @param message Exception message.
+     */
+    public IllegalMoveException(String message) {
         super(message);
     }
 }

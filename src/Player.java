@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Represents a player in the game
@@ -10,7 +8,6 @@ public class Player implements Cloneable, Comparable {
     private char symbol;
     private boolean isMachine;
     private boolean isWinner;
-    private Collection<Coordinates2D> witness = new ArrayList<>(4);
 
     /**
      * Creates a new human player.
@@ -47,20 +44,22 @@ public class Player implements Cloneable, Comparable {
         return isMachine;
     }
 
+    /**
+     * Sets player to winner or removes him from winners.
+     *
+     * @param isWinner Set player to winner if true.
+     */
     public void setWinner(boolean isWinner) {
         this.isWinner = isWinner;
     }
 
+    /**
+     * Checks if player is winner.
+     *
+     * @return True if player is winner.
+     */
     public boolean isWinner() {
         return isWinner;
-    }
-
-    public void setWitness(Collection<Coordinates2D> witness) {
-        this.witness = witness;
-    }
-
-    public Collection<Coordinates2D> getWitness() {
-        return witness;
     }
 
     /**
@@ -76,11 +75,6 @@ public class Player implements Cloneable, Comparable {
             throw new Error(ex);
         }
 
-        Collection<Coordinates2D> witnessCopy = new ArrayList<>(4);
-        for (Coordinates2D coordinates : witness) {
-            witnessCopy.add(coordinates);
-        }
-        clone.witness = witnessCopy;
         return clone;
     }
 

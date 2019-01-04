@@ -13,6 +13,7 @@ public class ConnectFour implements Board, Cloneable {
     private GroupManager groups;
     private Player[] players = new Player[2];
     private Player currentPlayer;
+    private Player lastPlayer;
     private int boardValue;
     private int level = 4;
     private ConnectFour[] gameTree = new ConnectFour[7];
@@ -56,7 +57,9 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Board move(int col) {
-        if (gameOver) {
+        if (gameOver || (lastPlayer != null
+                && lastPlayer.compareTo(currentPlayer) == 0)) {
+
             throw new IllegalMoveException();
         }
 
@@ -78,7 +81,6 @@ public class ConnectFour implements Board, Cloneable {
             }
         }
         return null;
-        //TODO exception when not players turn
     }
 
     /**
@@ -121,9 +123,15 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public boolean isGameOver() {
-        Group winningGroup = groups.getWinningGroup();
 
+        if (isTie()) {
+            gameOver = true;
+            return true;
+        }
+
+        Group winningGroup = groups.getWinningGroup();
         if (winningGroup != null) {
+
             if (winningGroup.getOwner().compareTo(players[0]) == 0) {
                 players[0].setWinner(true);
             } else {
@@ -148,7 +156,6 @@ public class ConnectFour implements Board, Cloneable {
         } else if (players[1].isWinner()) {
             return players[1];
         }
-
         return null;
     }
 
@@ -162,15 +169,14 @@ public class ConnectFour implements Board, Cloneable {
         }
 
         List<Coordinates2D> witness = new ArrayList<>(4);
-        Group winningGroup = groups.getWinningGroup();
+        Collection<Checker> winningGroup
+                = groups.getWinningGroup().getSortedMembers();
 
-        for (Checker checker : winningGroup.getMembers()) {
+        for (Checker checker : winningGroup) {
             witness.add(checker.getPosition());
         }
 
-        //TODO finish
-
-        return null;
+        return witness;
     }
 
     /**
@@ -247,6 +253,27 @@ public class ConnectFour implements Board, Cloneable {
         return b.toString();
     }
 
+    /**
+     * Checks if game has no winner
+     *
+     * @return true if its a tie
+     */
+    private boolean isTie() {
+        for (int col = 0; col < COLS; col++) {
+            if (currBoard[ROWS - 1][col] == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Generates game tree of current board.
+     *
+     * @param current Current board.
+     * @param depth Depth to generate tree for.
+     * @return The generated game tree
+     */
     private ConnectFour[] generateGameTree(ConnectFour current, int depth) {
 
         ConnectFour[] gameTree = new ConnectFour[7];
@@ -270,6 +297,13 @@ public class ConnectFour implements Board, Cloneable {
         return gameTree;
     }
 
+    /**
+     * Checks if current draw is made by machine or not when generating the game
+     * tree and calculating values.
+     *
+     * @param depth Depth of the tree.
+     * @return true if current draw is made by machine.
+     */
     private boolean isMachineDraw(int depth) {
         if (level % 2 == 0) {
             return depth % 2 == 0;
@@ -278,6 +312,12 @@ public class ConnectFour implements Board, Cloneable {
         }
     }
 
+    /**
+     * Calculates the board value of the given game tree including its depth.
+     *
+     * @param currentGameTree Tree to calculate value for.
+     * @param depth Current depth of tree.
+     */
     private void calculateValues(ConnectFour[] currentGameTree, int depth) {
         if (depth > 0) {
             boolean machineDraw = isMachineDraw(depth);
@@ -315,11 +355,11 @@ public class ConnectFour implements Board, Cloneable {
         int actCol = checker.getPosition().getColumn();
 
         // calculate neighbour coordinates
-        Checker underneath = getCheckerByPosition(new Coordinates2D
-                (actRow - 1, actCol));
+        Checker underneath = getCheckerByPosition(new Coordinates2D(
+                actRow - 1, actCol));
 
-        Checker above = getCheckerByPosition(new Coordinates2D
-                (actRow + 1, actCol));
+        Checker above = getCheckerByPosition(new Coordinates2D(
+                actRow + 1, actCol));
 
         // add checker underneath if possible
         if (isValidNeighbour(underneath, checker)) {
@@ -345,11 +385,11 @@ public class ConnectFour implements Board, Cloneable {
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Checker left = getCheckerByPosition(new Coordinates2D
-                (actRow, actCol - 1));
+        Checker left = getCheckerByPosition(new Coordinates2D(
+                actRow, actCol - 1));
 
-        Checker right = getCheckerByPosition(new Coordinates2D
-                (actRow, actCol + 1));
+        Checker right = getCheckerByPosition(new Coordinates2D(
+                actRow, actCol + 1));
 
         // add left checker if possible
         if (isValidNeighbour(left, checker)) {
@@ -375,11 +415,11 @@ public class ConnectFour implements Board, Cloneable {
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Checker topRight = getCheckerByPosition(new Coordinates2D
-                (actRow + 1, actCol + 1));
+        Checker topRight = getCheckerByPosition(new Coordinates2D(
+                actRow + 1, actCol + 1));
 
-        Checker bottomLeft = getCheckerByPosition(new Coordinates2D
-                (actRow - 1, actCol - 1));
+        Checker bottomLeft = getCheckerByPosition(new Coordinates2D(
+                actRow - 1, actCol - 1));
 
         // if possible get checker from:
         // -> right top
@@ -406,11 +446,11 @@ public class ConnectFour implements Board, Cloneable {
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        Checker topLeft = getCheckerByPosition(new Coordinates2D
-                (actRow + 1, actCol - 1));
+        Checker topLeft = getCheckerByPosition(new Coordinates2D(
+                actRow + 1, actCol - 1));
 
-        Checker bottomRight = getCheckerByPosition(new Coordinates2D
-                (actRow - 1, actCol + 1));
+        Checker bottomRight = getCheckerByPosition(new Coordinates2D(
+                actRow - 1, actCol + 1));
 
         // if possible get checker from
         // -> top left
@@ -558,8 +598,10 @@ public class ConnectFour implements Board, Cloneable {
 
             if (toMachine) {
                 currentPlayer = machine;
+                lastPlayer = human;
             } else {
                 currentPlayer = human;
+                lastPlayer = machine;
             }
         }
     }

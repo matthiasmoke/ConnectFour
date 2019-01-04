@@ -133,3 +133,57 @@ X.....O
 XX....O
 
 Bot takes ages to make a move...
+
+Test winner detection:
+Sorry! Machine wins
+4inarow> p
+. . . . . . .
+. . . . . . .
+. . X X . O .
+. . O O O X .
+. O O O X X X
+. X O O O X X
+
+Error detection:
+p
+Error! Game has not started yet!
+4inarow> m1
+Error! Game has not started yet!
+4inarow> n
+4inarow> m1
+Error! No valid input...
+4inarow>
+4inarow> .#
+Error! No valid input...
+4inarow>
+
+Get witness:
+Sorry! Machine wins.
+4inarow> p
+. . . . . . .
+. . . . . . .
+. . X X . O .
+. . O O O X .
+. O O O X X X
+. X O O O X X
+4inarow> w
+(2, 0)
+(3, 1)
+(4, 2)
+(5, 3)
+
+-> have to convert coordinates
+
+4inarow> p
+. . . . . . .
+. . . . . . .
+. . X X . O .
+. . O O O X .
+. O O O X X X
+. X O O O X X
+4inarow> w
+(3, 1)
+(4, 2)
+(5, 3)
+(6, 4)
+

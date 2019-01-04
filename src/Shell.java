@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -12,7 +13,8 @@ public final class Shell {
     private static final short ERR_NOT_INITIALIZED = 1;
     private static final short ERR_ACTION_NOT_POSSIBLE = 2;
     private static final String MSG_VICTORY = "Congratulations! You won.";
-    private static final String MSG_DEFEAT = "Sorry! Machine wins";
+    private static final String MSG_DEFEAT = "Sorry! Machine wins.";
+    private static final String MSG_TIE = "No winner!";
     private static final String[] COMMANDS =
             {
                     "new", "level", "switch", "move", "witness", "print",
@@ -23,6 +25,9 @@ public final class Shell {
     private static int level = 0;
     private static boolean levelIsSet = false;
 
+    /**
+     * /
+     */
     private Shell() {
 
     }
@@ -30,13 +35,12 @@ public final class Shell {
     /**
      * Main method that starts the shell.
      *
-     * @param args
+     * @param args /
      * @throws IOException Occurs on wrong usage.
      */
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
-        init();
         runShell(reader);
 
     }
@@ -163,10 +167,22 @@ public final class Shell {
      */
     private static void witness() {
         if (initiated()) {
-            if (game.isGameOver()) {
-                for (Coordinates2D c : game.getWitness()) {
-                    System.out.println(c.toString());
+            if (game.isGameOver() && game.getWinner() != null) {
+
+                StringBuilder builder = new StringBuilder();
+                ArrayList<Coordinates2D> witness
+                        = (ArrayList) game.getWitness();
+
+                for (int i = 0; i < Board.CONNECT; i++) {
+                    builder.append(witness.get(i).toString());
+
+                    if (i < Board.CONNECT - 1) {
+                        builder.append(", ");
+                    }
                 }
+
+                System.out.println(builder.toString());
+
             } else {
                 handleError(ERR_ACTION_NOT_POSSIBLE);
             }
@@ -215,22 +231,28 @@ public final class Shell {
     private static void move(int column) {
         if (initiated()) {
             if (column > 0 && column < 8) {
-                Board playerMove = game.move(column);
 
-                if (playerMove != null) {
-                    game = playerMove;
-
-                    if (playerMove.isGameOver()) {
-                        System.out.println(MSG_VICTORY);
-                    } else {
-                        game = game.machineMove();
-                        if (game.isGameOver()) {
-                            System.out.println(MSG_DEFEAT);
-                        }
-                    }
+                if (game.isGameOver()) {
+                    System.out.println(MSG_TIE);
                 } else {
-                    handleError(ERR_ACTION_NOT_POSSIBLE);
+                    Board playerMove = game.move(column);
+
+                    if (playerMove != null) {
+                        game = playerMove;
+
+                        if (playerMove.isGameOver()) {
+                            System.out.println(MSG_VICTORY);
+                        } else {
+                            game = game.machineMove();
+                            if (game.isGameOver()) {
+                                System.out.println(MSG_DEFEAT);
+                            }
+                        }
+                    } else {
+                        handleError(ERR_ACTION_NOT_POSSIBLE);
+                    }
                 }
+
             } else {
                 handleError(ERR_NO_VALID_INPUT);
             }
@@ -297,6 +319,8 @@ public final class Shell {
                 break;
             case  ERR_ACTION_NOT_POSSIBLE:
                 System.out.println("Error! Action not possible");
+            default:
+                System.out.println("Unknown Error!");
         }
     }
 }

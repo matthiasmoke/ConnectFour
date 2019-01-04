@@ -1,7 +1,7 @@
 /**
  * Class to represent the coordinates of a checker in the game-board
  */
-public class Coordinates2D implements Cloneable{
+public class Coordinates2D implements Cloneable {
 
     private int posRow;
     private int posCol;
@@ -55,6 +55,6 @@ public class Coordinates2D implements Cloneable{
      */
     @Override
     public String toString() {
-        return String.format("(%d, %d)", posCol, posRow);
+        return String.format("(%d, %d)",  posRow + 1, posCol + 1);
     }
 }

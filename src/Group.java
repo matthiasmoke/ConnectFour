@@ -1,12 +1,11 @@
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Represents a group of checkers in the game-board
  */
-public class Group implements Cloneable{
+public class Group implements Cloneable {
 
     private GroupType type;
     private List<Checker> members = new ArrayList<>(4);
@@ -50,7 +49,7 @@ public class Group implements Cloneable{
     }
 
     /**
-     * Checks if group has certain member.
+     * Checks if group has a certain member.
      *
      * @param member Member that has to be searched for.
      * @return true if given member is part of the group.
@@ -67,13 +66,61 @@ public class Group implements Cloneable{
         return false;
     }
 
+    /**
+     * Adds members to the group.
+     *
+     * @param memberList List of members to add.
+     */
     public void addMembers(Collection<Checker> memberList) {
         for (Checker member : memberList) {
-            // if group size smaller than 4 and member isnt already member
+            // if group size smaller than 4 and member isn't already member
             if (members.size() < Board.CONNECT && !hasMember(member)) {
                 members.add(member);
             }
         }
+    }
+
+    /**
+     * Gets members of the group in sorted order
+     *
+     * @return Collection of members in sorted order.
+     */
+    public Collection<Checker> getSortedMembers() {
+        int key;
+
+        for (int i = 1; i < members.size(); i++) {
+            key = getKeyForSort(i);
+            Checker save = members.get(i);
+            int j = i - 1;
+
+            while (j >= 0 && getKeyForSort(j) > key) {
+                members.set(j + 1, members.get(j));
+                j--;
+            }
+
+            members.set(j + 1, save);
+        }
+        return members;
+
+    }
+
+    /**
+     * Gets the right key for sort by using group type.
+     * For vertical groups it returns the row index, for others, the column
+     *
+     * @param index Index of the member in members.
+     * @return Key value of member on index.
+     */
+    private int getKeyForSort(int index) {
+        int key;
+
+        if (type == GroupType.VERTICAL) {
+            key = members.get(index).getPosition().getRow();
+        } else {
+            key = members.get(index).getPosition().getColumn();
+        }
+
+        return key;
     }
 
     /**

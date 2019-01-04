@@ -1,7 +1,7 @@
 /**
  * Represents a checker in the game
  */
-public class Checker implements Cloneable{
+public class Checker implements Cloneable {
 
     private Player owner;
     private Coordinates2D position;
