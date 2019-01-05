@@ -95,8 +95,8 @@ public class ConnectFour implements Board, Cloneable {
         calculateValues(gameTree, level);
 
         // get largest board value
-        int largest = 0;
-        for (int i = COLS - 1; i >= 0; i--) {
+        int largest = COLS -1;
+        for (int i = COLS - 2; i >= 0; i--) {
             if (gameTree[largest].boardValue <= gameTree[i].boardValue) {
                 largest = i;
             }
@@ -243,9 +243,13 @@ public class ConnectFour implements Board, Cloneable {
                 Checker currSlot = currBoard[row][col];
 
                 if (currSlot == null) {
-                    b.append(". ");
+                    b.append(".");
                 } else {
-                    b.append(currSlot.getOwner().getSymbol()).append(" ");
+                    b.append(currSlot.getOwner().getSymbol());
+                }
+
+                if (col < COLS - 1) {
+                    b.append(" ");
                 }
             }
             newLine = "\n";

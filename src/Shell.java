@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -14,12 +14,13 @@ public final class Shell {
     private static final short ERR_ACTION_NOT_POSSIBLE = 2;
     private static final String MSG_VICTORY = "Congratulations! You won.";
     private static final String MSG_DEFEAT = "Sorry! Machine wins.";
-    private static final String MSG_TIE = "No winner!";
+    private static final String MSG_GAME_OVER = "Game already Over!";
     private static final String[] COMMANDS =
             {
                     "new", "level", "switch", "move", "witness", "print",
                     "help", "quit"
             };
+
     private static boolean run;
     private static Board game;
     private static int level = 0;
@@ -170,8 +171,8 @@ public final class Shell {
             if (game.isGameOver() && game.getWinner() != null) {
 
                 StringBuilder builder = new StringBuilder();
-                ArrayList<Coordinates2D> witness
-                        = (ArrayList) game.getWitness();
+                List<Coordinates2D> witness
+                        = (List<Coordinates2D>) game.getWitness();
 
                 for (int i = 0; i < Board.CONNECT; i++) {
                     builder.append(witness.get(i).toString());
@@ -233,7 +234,7 @@ public final class Shell {
             if (column > 0 && column < 8) {
 
                 if (game.isGameOver()) {
-                    System.out.println(MSG_TIE);
+                    System.out.println(MSG_GAME_OVER);
                 } else {
                     Board playerMove = game.move(column);
 
