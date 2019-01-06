@@ -92,6 +92,9 @@ public class ConnectFour implements Board, Cloneable {
         gameTree = generateGameTree(this, level);
         calculateValues(gameTree, level);
 
+        // check if bot win is possible in next draw
+        addValueForPossibleBotWin();
+
         // get largest board value
         int indexOfMaximum = getIndexOfMaximum(gameTree);
 
@@ -101,6 +104,21 @@ public class ConnectFour implements Board, Cloneable {
         machineMove.switchPlayer(false);
 
         return machineMove;
+    }
+
+    /**
+     * Adds the r-value from specification to board value if bot win is possible
+     * in next draw
+     */
+    private void addValueForPossibleBotWin() {
+
+        for (int i = 0; i < gameTree.length; i++) {
+            if (gameTree[i] != null) {
+                if (gameTree[i].groups.isBotWinPossible()) {
+                    gameTree[i].boardValue += 500000;
+                }
+            }
+        }
     }
 
     /**
@@ -544,15 +562,7 @@ public class ConnectFour implements Board, Cloneable {
      *                          be added to value of this board
      */
     private void calculateBoardValue(boolean addMaximumToValue) {
-        boardValue = getCheckerValue() + groups.calculateValue();
-
-        // This would be the part adding the 500000 r-value when machine can win
-        // But praktomat tests fail if I add it.
-        // Maybe I misunderstood something?
-        /*
-        if (groups.isBotWinPossible()) {
-            boardValue += 500000;
-        }*/
+        boardValue = getCheckerValue() + groups.calculateGroupValue();
 
         if (!isGameTreeNull()) {
             int maxMin;

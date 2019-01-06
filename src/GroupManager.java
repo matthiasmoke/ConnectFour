@@ -84,7 +84,7 @@ public class GroupManager implements Cloneable {
      *
      * @return Calculated P value for groups.
      */
-    public int calculateValue() {
+    public int calculateGroupValue() {
 
         // List with groups of human player.
         List<Group> groupsHuman = getHumanGroups();
