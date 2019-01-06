@@ -187,3 +187,18 @@ Sorry! Machine wins.
 (5, 3)
 (6, 4)
 
+Trying to find bug responsible for failure in parktomat test
+. . . O . . .
+. . O O . . .
+. . O O . O O
+. . X X . X X
+X . O O . X X
+X . O X O X X
+4inarow> p
+. . . O . . .
+. . O O . . .
+. . O O . O O
+. . X X . X X
+X O O O . X X
+X X O X O X X
+

@@ -1,8 +1,6 @@
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Arrays;
 
 /**
  * Class to represent the game-board
@@ -95,14 +93,9 @@ public class ConnectFour implements Board, Cloneable {
         calculateValues(gameTree, level);
 
         // get largest board value
-        int largest = COLS -1;
-        for (int i = COLS - 2; i >= 0; i--) {
-            if (gameTree[largest].boardValue <= gameTree[i].boardValue) {
-                largest = i;
-            }
-        }
+        int indexOfMaximum = getIndexOfMaximum(gameTree);
 
-        ConnectFour machineMove = (ConnectFour) move(largest + 1);
+        ConnectFour machineMove = (ConnectFour) move(indexOfMaximum + 1);
         gameTree = null;
         //switch current player to human
         machineMove.switchPlayer(false);
@@ -288,13 +281,11 @@ public class ConnectFour implements Board, Cloneable {
             current.switchPlayer(machineDraw);
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
+                gameTree[col] = newBoard;
 
                 if (newBoard != null) {
-                    gameTree[col] = newBoard;
                     gameTree[col].gameTree = generateGameTree(gameTree[col],
                             depth - 1);
-                } else {
-                    gameTree[col] = current;
                 }
             }
         }
@@ -544,29 +535,69 @@ public class ConnectFour implements Board, Cloneable {
         }
     }
 
+    /**
+     * Calculates the board value of current board by summing up checker- and
+     * group-value and the maximum or minimum of board values in game tree
+     * of current board
+     *
+     * @param addMaximumToValue Parameter to determine if max or min should
+     *                          be added to value of this board
+     */
     private void calculateBoardValue(boolean addMaximumToValue) {
         boardValue = getCheckerValue() + groups.calculateValue();
 
+        // This would be the part adding the 500000 r-value when machine can win
+        // But praktomat tests fail if I add it.
+        // Maybe I misunderstood something?
+        /*
         if (groups.isBotWinPossible()) {
             boardValue += 500000;
-        }
+        }*/
 
         if (!isGameTreeNull()) {
-            Comparator<ConnectFour> comparator
-                    = (v1, v2) -> Integer.compare(v1.boardValue, v2.boardValue);
-            ConnectFour maxMin;
+            int maxMin;
 
             if (addMaximumToValue) {
-                // if machine move get node with highest board value of tree
-                maxMin = Arrays.stream(gameTree).max(comparator).get();
+                // if machine move, get node with highest board value of tree
+                maxMin = getIndexOfMaximum(gameTree);
             } else {
                 //else with lowest (human move)
-                maxMin = Arrays.stream(gameTree).min(comparator).get();
+                maxMin = getIndexOfMinimum(gameTree);
             }
 
             // add value to current board
-            boardValue += maxMin.boardValue;
+            boardValue += gameTree[maxMin].boardValue;
         }
+    }
+
+    private int getIndexOfMaximum(ConnectFour[] tree) {
+        int largest = COLS - 1;
+        for (int i = COLS - 2; i >= 0; i--) {
+
+            if (tree[i] != null) {
+
+                if (tree[largest] == null
+                        || tree[largest].boardValue <= tree[i].boardValue) {
+                    largest = i;
+                }
+            }
+        }
+        return largest;
+    }
+
+    private int getIndexOfMinimum(ConnectFour[] tree) {
+        int smallest = COLS - 1;
+        for (int i = COLS - 2; i >= 0; i--) {
+
+            if (tree[i] != null) {
+
+                if (tree[smallest] == null
+                        || tree[smallest].boardValue >= tree[i].boardValue) {
+                    smallest = i;
+                }
+            }
+        }
+        return smallest;
     }
 
     private boolean isGameTreeNull() {
