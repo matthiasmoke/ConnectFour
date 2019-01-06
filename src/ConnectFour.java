@@ -28,7 +28,6 @@ public class ConnectFour implements Board, Cloneable {
         groups = new GroupManager(players[0], players[1]);
     }
 
-
     /**
      * Constructor for two players
      *
@@ -86,9 +85,9 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public Board machineMove() {
-
         // switch current player to machine
         switchPlayer(true);
+
         gameTree = generateGameTree(this, level);
         calculateValues(gameTree, level);
 
@@ -111,8 +110,8 @@ public class ConnectFour implements Board, Cloneable {
      * in next draw
      */
     private void addValueForPossibleBotWin() {
-
         for (int i = 0; i < gameTree.length; i++) {
+
             if (gameTree[i] != null) {
                 if (gameTree[i].groups.isBotWinPossible()) {
                     gameTree[i].boardValue += 500000;
@@ -134,13 +133,13 @@ public class ConnectFour implements Board, Cloneable {
      */
     @Override
     public boolean isGameOver() {
-
         if (isTie()) {
             gameOver = true;
             return true;
         }
 
         Group winningGroup = groups.getWinningGroup();
+
         if (winningGroup != null) {
 
             if (winningGroup.getOwner().compareTo(players[0]) == 0) {
@@ -216,18 +215,20 @@ public class ConnectFour implements Board, Cloneable {
             throw new Error(ex);
         }
 
-        //deep copy game board
+        // Deep copy game board.
         copy.currBoard = currBoard.clone();
         for (int i = 0; i < currBoard.length; i++) {
             copy.currBoard[i] = currBoard[i].clone();
+
             for (int j = 0; j < currBoard[i].length; j++) {
+
                 if (currBoard[i][j] != null) {
                     copy.currBoard[i][j] = currBoard[i][j].clone();
                 }
             }
         }
 
-        //deep copy groups and current player
+        // Deep copy groups and current player.
         copy.groups = groups.clone();
         copy.currentPlayer = currentPlayer.clone();
 
@@ -259,6 +260,7 @@ public class ConnectFour implements Board, Cloneable {
                     b.append(currSlot.getOwner().getSymbol());
                 }
 
+                //If its the last column, no space must be added.
                 if (col < COLS - 1) {
                     b.append(" ");
                 }
@@ -290,13 +292,15 @@ public class ConnectFour implements Board, Cloneable {
      * @return The generated game tree
      */
     private ConnectFour[] generateGameTree(ConnectFour current, int depth) {
-
         ConnectFour[] gameTree = new ConnectFour[7];
         boolean machineDraw;
+
         for (int i = 0; i < depth; i++) {
+
             //detect if generated move is made by machine or human
             machineDraw = isMachineDraw(depth);
             current.switchPlayer(machineDraw);
+
             for (int col = 0; col < COLS; col++) {
                 ConnectFour newBoard = (ConnectFour) current.move(col + 1);
                 gameTree[col] = newBoard;
@@ -334,7 +338,9 @@ public class ConnectFour implements Board, Cloneable {
     private void calculateValues(ConnectFour[] currentGameTree, int depth) {
         if (depth > 0) {
             boolean machineDraw = isMachineDraw(depth);
+
             for (int i = 0; i < COLS; i++) {
+
                 if (currentGameTree[i] != null) {
                     calculateValues(currentGameTree[i].gameTree,
                             depth - 1);
@@ -363,23 +369,24 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findVerticalNeighbours(Checker checker) {
 
+        // List of surrounding checkers.
         List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
-        // calculate neighbour coordinates
+        // Calculate neighbour positions.
         Checker underneath = getCheckerByPosition(new Coordinates2D(
                 actRow - 1, actCol));
 
         Checker above = getCheckerByPosition(new Coordinates2D(
                 actRow + 1, actCol));
 
-        // add checker underneath if possible
+        // Add checker underneath if possible.
         if (isValidNeighbour(underneath, checker)) {
             surrounding.add(underneath);
         }
 
-        // add checker above if possible
+        // Add checker above if possible.
         if (isValidNeighbour(above, checker)) {
             surrounding.add(above);
         }
@@ -394,22 +401,24 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findHorizontalNeighbours(Checker checker) {
 
+        // List of surrounding checkers.
         List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
+        // Calculate neighbour positions.
         Checker left = getCheckerByPosition(new Coordinates2D(
                 actRow, actCol - 1));
 
         Checker right = getCheckerByPosition(new Coordinates2D(
                 actRow, actCol + 1));
 
-        // add left checker if possible
+        // Add left checker if possible.
         if (isValidNeighbour(left, checker)) {
             surrounding.add(left);
         }
 
-        // add right checker if possible
+        // Add right checker if possible.
         if (isValidNeighbour(right, checker)) {
             surrounding.add(right);
         }
@@ -424,23 +433,24 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findDiagonalRisingMembers(Checker checker) {
 
+        // List of surrounding checkers.
         List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
+        // Calculate neighbour positions.
         Checker topRight = getCheckerByPosition(new Coordinates2D(
                 actRow + 1, actCol + 1));
 
         Checker bottomLeft = getCheckerByPosition(new Coordinates2D(
                 actRow - 1, actCol - 1));
 
-        // if possible get checker from:
-        // -> right top
+        // Add checker from the top right if possible.
         if (isValidNeighbour(topRight, checker)) {
             surrounding.add(topRight);
         }
 
-        // -> left bottom
+        // Add left checker if possible.
         if (isValidNeighbour(bottomLeft, checker)) {
             surrounding.add(bottomLeft);
         }
@@ -455,23 +465,24 @@ public class ConnectFour implements Board, Cloneable {
      */
     private void findDiagonalFallingMembers(Checker checker) {
 
+        // List of surrounding checkers.
         List<Checker> surrounding = new ArrayList<>(2);
         int actRow = checker.getPosition().getRow();
         int actCol = checker.getPosition().getColumn();
 
+        // Calculate neighbour positions.
         Checker topLeft = getCheckerByPosition(new Coordinates2D(
                 actRow + 1, actCol - 1));
 
         Checker bottomRight = getCheckerByPosition(new Coordinates2D(
                 actRow - 1, actCol + 1));
 
-        // if possible get checker from
-        // -> top left
+        // Add top left checker if possible.
         if (isValidNeighbour(topLeft, checker)) {
             surrounding.add(topLeft);
         }
 
-        // -> bottom right
+        // Add bottom right checker if possible.
         if (isValidNeighbour(bottomRight, checker)) {
             surrounding.add(bottomRight);
         }
@@ -485,6 +496,12 @@ public class ConnectFour implements Board, Cloneable {
                 && neighbour.getOwner().equals(checker.getOwner());
     }
 
+    /**
+     * Checks if given position is on the game board.
+     *
+     * @param position Position to check.
+     * @return True if the given position is on the game board.
+     */
     private boolean isValidPosition(Coordinates2D position) {
         int row = position.getRow();
         int col = position.getColumn();
@@ -498,7 +515,6 @@ public class ConnectFour implements Board, Cloneable {
         if (isValidPosition(position)) {
             return currBoard[position.getRow()][position.getColumn()];
         }
-
         return null;
     }
 
@@ -512,11 +528,12 @@ public class ConnectFour implements Board, Cloneable {
         int valueP1 = 0;
         int valueP2 = 0;
 
-        //counting checkers of each player for each column
+        // Counting checkers of each player for each column.
         for (int i = 1; i < COLS - 1; i++) {
 
-            int checkersP1 = 0; //Number of checkers in column for player 1
+            int checkersP1 = 0; //Number of checkers in column for player 1.
             int checkersP2 = 0;
+
             for (int row = 0; row < ROWS; row++) {
                 Checker currChecker = currBoard[row][i];
                 if (currChecker != null) {
@@ -531,6 +548,8 @@ public class ConnectFour implements Board, Cloneable {
                 }
             }
 
+            // Determine the value that the number of checkers in a certain row
+            // have to be multiplied.
             int multiplicator = i;
 
             if (i == 4) {
@@ -545,7 +564,7 @@ public class ConnectFour implements Board, Cloneable {
             valueP2 += multiplicator * checkersP2;
         }
 
-        //detect which player is the bot
+        //Detect which player is the bot.
         if (players[0].isMachine()) {
             return valueP1 - valueP2;
         } else {
@@ -568,26 +587,33 @@ public class ConnectFour implements Board, Cloneable {
             int maxMin;
 
             if (addMaximumToValue) {
-                // if machine move, get node with highest board value of tree
+                // If machine move, get node with highest board value of tree.
                 maxMin = getIndexOfMaximum(gameTree);
             } else {
-                //else with lowest (human move)
+                // Else with lowest (human move).
                 maxMin = getIndexOfMinimum(gameTree);
             }
 
-            // add value to current board
+            // Add value to current board.
             boardValue += gameTree[maxMin].boardValue;
         }
     }
 
+    /**
+     * Gets the index of the board in tree with the maximum board value.
+     *
+     * @param tree Game tree to check.
+     * @return Index of the max board value.
+     */
     private int getIndexOfMaximum(ConnectFour[] tree) {
         int largest = COLS - 1;
-        for (int i = COLS - 2; i >= 0; i--) {
 
+        for (int i = COLS - 2; i >= 0; i--) {
             if (tree[i] != null) {
 
                 if (tree[largest] == null
                         || tree[largest].boardValue <= tree[i].boardValue) {
+
                     largest = i;
                 }
             }
@@ -595,10 +621,17 @@ public class ConnectFour implements Board, Cloneable {
         return largest;
     }
 
+
+    /**
+     * Gets the index of the board in tree with the minimum board value.
+     *
+     * @param tree Game tree to check.
+     * @return Index of the min board value.
+     */
     private int getIndexOfMinimum(ConnectFour[] tree) {
         int smallest = COLS - 1;
-        for (int i = COLS - 2; i >= 0; i--) {
 
+        for (int i = COLS - 2; i >= 0; i--) {
             if (tree[i] != null) {
 
                 if (tree[smallest] == null

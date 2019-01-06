@@ -12,9 +12,9 @@ public final class Shell {
     private static final short ERR_NO_VALID_INPUT = 0;
     private static final short ERR_NOT_INITIALIZED = 1;
     private static final short ERR_ACTION_NOT_POSSIBLE = 2;
+    private static final short ERR_GAME_OVER = 3;
     private static final String MSG_VICTORY = "Congratulations! You won.";
     private static final String MSG_DEFEAT = "Sorry! Machine wins.";
-    private static final String MSG_GAME_OVER = "Game already Over!";
     private static final String[] COMMANDS =
             {
                     "new", "level", "switch", "move", "witness", "print",
@@ -42,7 +42,6 @@ public final class Shell {
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
-        init();
         runShell(reader);
 
     }
@@ -97,43 +96,45 @@ public final class Shell {
 
         if (sc.hasNext()) {
             command = sc.next();
+
             switch (command.charAt(0)) {
-                case 'n':
-                    createNewGame(new Player('X'),
-                            new Player('O', true));
-                    break;
 
-                case 'l':
-                    level = getNextInt(sc);
-                    setLevel(level);
-                    break;
+            case 'n':
+                createNewGame(new Player('X'),
+                        new Player('O', true));
+                break;
 
-                case 's':
-                    switchBeginner();
-                    break;
+            case 'l':
+                level = getNextInt(sc);
+                setLevel(level);
+                break;
 
-                case 'm':
-                    move(getNextInt(sc));
-                    break;
+            case 's':
+                switchBeginner();
+                break;
 
-                case 'w':
-                    witness();
-                    break;
+            case 'm':
+                move(getNextInt(sc));
+                break;
 
-                case 'p':
-                    print();
-                    break;
+            case 'w':
+                witness();
+                break;
 
-                case 'h':
-                    printHelpMessage();
-                    break;
+            case 'p':
+                print();
+                break;
 
-                case 'q':
-                    run = false;
-                    break;
+            case 'h':
+                printHelpMessage();
+                break;
 
-                default:
-                    handleError(ERR_NO_VALID_INPUT);
+            case 'q':
+                run = false;
+                break;
+
+            default:
+                handleError(ERR_NO_VALID_INPUT);
             }
         }
         sc.close();
@@ -147,9 +148,11 @@ public final class Shell {
      */
     private static void createNewGame(Player player1, Player player2) {
         game = new ConnectFour(player1, player2);
+
         if (levelIsSet) {
             setLevel(level);
         }
+
         if (game.getFirstPlayer().isMachine()) {
             game = game.machineMove();
         }
@@ -232,35 +235,46 @@ public final class Shell {
      */
     private static void move(int column) {
         if (initiated()) {
+
             if (column > 0 && column < 8) {
 
                 if (game.isGameOver()) {
-                    System.out.println(MSG_GAME_OVER);
+                    handleError(ERR_GAME_OVER);
                 } else {
                     Board playerMove = game.move(column);
 
                     if (playerMove != null) {
                         game = playerMove;
 
-                        if (playerMove.isGameOver()) {
-                            System.out.println(MSG_VICTORY);
-                        } else {
+                        if (!checkWinner()) {
                             game = game.machineMove();
-                            if (game.isGameOver()) {
-                                System.out.println(MSG_DEFEAT);
-                            }
+                            checkWinner();
                         }
                     } else {
                         handleError(ERR_ACTION_NOT_POSSIBLE);
                     }
                 }
-
             } else {
                 handleError(ERR_NO_VALID_INPUT);
             }
         } else {
             handleError(ERR_NOT_INITIALIZED);
         }
+    }
+
+    private static boolean checkWinner() {
+        Player winner = game.getWinner();
+
+        if (game.isGameOver() && winner != null) {
+
+            if (winner.isMachine()) {
+                System.out.println(MSG_DEFEAT);
+            } else {
+                System.out.println(MSG_VICTORY);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -311,18 +325,21 @@ public final class Shell {
      */
     private static void handleError(int errorCode) {
 
-        // (IDE automatically shifts case, and I wont shift it back)
         switch (errorCode) {
-            case ERR_NO_VALID_INPUT:
-                System.out.println("Error! No valid input...");
-                break;
-            case  ERR_NOT_INITIALIZED:
-                System.out.println("Error! Game has not started yet!");
-                break;
-            case  ERR_ACTION_NOT_POSSIBLE:
-                System.out.println("Error! Action not possible");
-            default:
-                System.out.println("Unknown Error!");
+        case ERR_NO_VALID_INPUT:
+            System.out.println("Error! No valid input...");
+            break;
+        case  ERR_NOT_INITIALIZED:
+            System.out.println("Error! Game has not started yet!");
+            break;
+        case  ERR_ACTION_NOT_POSSIBLE:
+            System.out.println("Error! Action not possible");
+            break;
+        case ERR_GAME_OVER:
+            System.out.println("Game already Over!");
+            break;
+        default:
+            System.out.println("Unknown Error!");
         }
     }
 }

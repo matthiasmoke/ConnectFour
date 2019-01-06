@@ -57,6 +57,7 @@ public class Group implements Cloneable {
     public boolean hasMember(Checker member) {
         int col = member.getPosition().getColumn();
         int row = member.getPosition().getRow();
+
         for (Checker checker : members) {
             if (col == checker.getPosition().getColumn()
                     && row == checker.getPosition().getRow()) {
@@ -73,7 +74,8 @@ public class Group implements Cloneable {
      */
     public void addMembers(Collection<Checker> memberList) {
         for (Checker member : memberList) {
-            // if group size smaller than 4 and member isn't already member
+
+            // If group size smaller than 4 and member isn't already member.
             if (members.size() < Board.CONNECT && !hasMember(member)) {
                 members.add(member);
             }
@@ -81,7 +83,7 @@ public class Group implements Cloneable {
     }
 
     /**
-     * Gets members of the group in sorted order
+     * Gets members of the group in sorted order by using insertion-sort
      *
      * @return Collection of members in sorted order.
      */
@@ -129,20 +131,19 @@ public class Group implements Cloneable {
     @Override
     public Group clone() {
         Group copy;
+        List<Checker> membersCopy =  new ArrayList<>(4);
+
         try {
             copy = (Group) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new Error(ex);
         }
 
-        List<Checker> membersCopy =  new ArrayList<>(4);
-
         for (Checker member : members) {
             membersCopy.add(member);
         }
 
         copy.members = membersCopy;
-
         return copy;
     }
 }

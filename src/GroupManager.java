@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Manages groups for a ConnectFour game
+ * Manages groups for a ConnectFour game.
  */
 public class GroupManager implements Cloneable {
 
@@ -36,7 +36,7 @@ public class GroupManager implements Cloneable {
         if (neighbours.size() > 0) {
 
             // Determine to whom the given checker belongs to and calls
-            // checkGroups() with fitting parameters
+            // checkGroups() with fitting parameters.
             if (checker.getOwner().equals(players[0])) {
                 checkGroups(checker, neighbours, type, groupsOfPlayer1);
             } else {
@@ -132,6 +132,7 @@ public class GroupManager implements Cloneable {
      */
     private void checkGroups(Checker checker, List<Checker> neighbours,
                              GroupType type, List<Group> allGroups) {
+
         //get all groups with certain group-type
         List<Group> groups =
                 allGroups.stream()
@@ -144,24 +145,25 @@ public class GroupManager implements Cloneable {
 
                 int iterator = 0;
                 boolean iterate = true;
+
                 while (iterator < neighbours.size() && iterate) {
 
-                    //is one of the neighbours in a group?
+                    // Is one of the neighbours in a group?
                     if (currGroup.hasMember(neighbours.get(iterator))) {
 
-                        //add all to the existing group
+                        // Add all to the existing group.
                         neighbours.add(checker);
                         currGroup.addMembers(neighbours);
 
-                        iterate = false; // stop iterating
-                        noGroup = false; // group found
+                        iterate = false;
+                        noGroup = false;
                     } else {
                         iterator++;
                     }
                 }
             }
 
-            // if neighbours are not in a group, a new one is created
+            // If neighbours are not in a group, a new one is created.
             if (noGroup) {
                 neighbours.add(checker);
                 allGroups.add(new Group(neighbours, type));

@@ -41,6 +41,7 @@ public class Coordinates2D implements Cloneable {
     @Override
     public Coordinates2D clone() {
         Coordinates2D copy;
+
         try {
             copy = (Coordinates2D) super.clone();
         } catch (CloneNotSupportedException ex) {
