@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.awt.geom.Dimension2D;
 
 public class View extends JFrame implements ActionListener {
 
@@ -16,8 +16,14 @@ public class View extends JFrame implements ActionListener {
     private static Board gameModel;
 
     private static final int[] LEVELS = {1, 2, 3, 4, 5};
+    private static final int DEFAULT_HEIGHT = 650;
+    private static final int DEFAULT_WIDTH = 700;
 
     public View() {
+
+    }
+
+    public void showGame() {
         initMainView();
     }
 
@@ -41,50 +47,42 @@ public class View extends JFrame implements ActionListener {
         menuPanel.add(switchButton);
         menuPanel.add(quitButton);
 
-        gamePanel.setLayout(new GridLayout());
-        gamePanel.setBackground(Color.BLUE);
+        gamePanel.setLayout(new GridLayout(Board.ROWS, Board.COLS));
+        initGamePanel();
 
-        // Adding components to the main frame.
-        mainFrame.getContentPane().add(BorderLayout.CENTER, gamePanel);
-        mainFrame.getContentPane().add(BorderLayout.SOUTH, menuPanel);
+        // Adding components to the main container.
+        Container mainContainer = mainFrame.getContentPane();
+        mainContainer.add(BorderLayout.CENTER, gamePanel);
+        mainContainer.add(BorderLayout.SOUTH, menuPanel);
 
+        mainFrame.pack();
+        mainFrame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         mainFrame.setVisible(true);
-        mainFrame.setSize(500, 400);
 
     }
 
-    private void addActionListeners() {
-        levelSelection.addActionListener(actionEvent -> selectionChanged());
-        newGameButton.addActionListener(actionEvent -> initNewGame());
-        switchButton.addActionListener(actionEvent -> switchBeginner());
-        quitButton.addActionListener(actionEvent -> quitGame());
-    }
-
-    private void quitGame() {
-        System.exit(0);
-    }
-
-    private void switchBeginner() {
-        Player p1 = new Player(Color.RED, true);
-        Player p2 = new Player(Color.YELLOW, false);
-        createNewGame(p1, p2);
-    }
-
-    private void initNewGame() {
-        gameModel = new ConnectFour();
-    }
-
-    private void selectionChanged() {
-        if (initiated()) {
-            gameModel.setLevel((int)levelSelection.getSelectedItem());
-        }
-    }
-
-    private  void initLevelComboBox() {
+    private void initLevelComboBox() {
         for (int level : LEVELS) {
             levelSelection.addItem(level);
             levelSelection.setSelectedItem(LEVELS[3]);
         }
+    }
+
+    private void initGamePanel() {
+        int numberOfSlots = Board.COLS * Board.ROWS;
+        Dimension slotDim = getSlotSize();
+
+        while (numberOfSlots > 0) {
+            gamePanel.add(new Slot(slotDim));
+            numberOfSlots--;
+        }
+    }
+
+    private Dimension getSlotSize() {
+        int relHeight = DEFAULT_HEIGHT / Board.ROWS;
+        int relWidth = DEFAULT_WIDTH / Board.COLS;
+
+        return new Dimension(relWidth, relHeight);
     }
 
     /**
@@ -111,9 +109,81 @@ public class View extends JFrame implements ActionListener {
         return gameModel != null;
     }
 
+    private void addActionListeners() {
+        levelSelection.addActionListener(new SelectionListener());
+        newGameButton.addActionListener(new NewGameListener());
+        switchButton.addActionListener(new SwitchListener());
+        quitButton.addActionListener(new QuitListener());
+        gamePanel.addMouseListener(new Mylistener());
+    }
+
+    class SelectionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (initiated()) {
+                gameModel.setLevel((int)levelSelection.getSelectedItem());
+            }
+        }
+    }
+
+    class NewGameListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            gameModel = new ConnectFour();
+        }
+    }
+
+    class SwitchListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Player p1 = new Player(Color.RED, true);
+            Player p2 = new Player(Color.YELLOW, false);
+            createNewGame(p1, p2);
+        }
+    }
+
+    class QuitListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.exit(0);
+        }
+    }
+
+    class Mylistener implements MouseListener {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            e.getSource();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            e.getSource();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            int column;
+            e.getSource();
+            for (int col = 0; col < Board.COLS; col++) {
+
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
+
     public static void main(String[] args) {
         View mainView = new View();
-
+        mainView.showGame();
     }
 
     @Override

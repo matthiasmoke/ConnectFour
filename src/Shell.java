@@ -42,6 +42,7 @@ public final class Shell {
     public static void main(String[] args) throws IOException {
         BufferedReader reader
                 = new BufferedReader(new InputStreamReader(System.in));
+        init();
         runShell(reader);
 
     }
@@ -81,8 +82,16 @@ public final class Shell {
         evalInput("m 1");
         evalInput("m 3");
         evalInput("m 1");
-        evalInput("p");
         evalInput("m 2");
+        evalInput("m 1");
+        evalInput("m 2");
+        evalInput("m 2");
+        evalInput("m 1");
+        evalInput("m 1");
+        evalInput("m 7");
+        evalInput("m 7");
+        evalInput("p");
+        evalInput("m 5");
     }
 
     /**
@@ -263,16 +272,17 @@ public final class Shell {
     }
 
     private static boolean checkWinner() {
-        Player winner = game.getWinner();
+        if (game.isGameOver()) {
+            Player winner = game.getWinner();
 
-        if (game.isGameOver() && winner != null) {
-
-            if (winner.isMachine()) {
-                System.out.println(MSG_DEFEAT);
-            } else {
-                System.out.println(MSG_VICTORY);
+            if (winner != null) {
+                if (winner.isMachine()) {
+                    System.out.println(MSG_DEFEAT);
+                } else {
+                    System.out.println(MSG_VICTORY);
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
