@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Dimension2D;
 
 public class View extends JFrame implements ActionListener {
 
@@ -14,10 +13,18 @@ public class View extends JFrame implements ActionListener {
     private  JComboBox<Integer> levelSelection;
 
     private static Board gameModel;
+    private static Thread machineThread;
+
+    private boolean machinePlaying = false;
 
     private static final int[] LEVELS = {1, 2, 3, 4, 5};
     private static final int DEFAULT_HEIGHT = 650;
     private static final int DEFAULT_WIDTH = 700;
+    private static final String MSG_ILLEGAL_MOVE = "Illegal Move!";
+    private static final String MSG_NOT_INITIATED = "Game has not started yet!";
+    private static final String MSG_VICTORY = "Congratulations! You won.";
+    private static final String MSG_DEFEAT = "Sorry! Machine wins.";
+    private static final String MSG_GAMEOVER = "Game is already over!";
 
     public View() {
 
@@ -61,6 +68,10 @@ public class View extends JFrame implements ActionListener {
 
     }
 
+    private void drawGamePanel() {
+
+    }
+
     private void initLevelComboBox() {
         for (int level : LEVELS) {
             levelSelection.addItem(level);
@@ -73,7 +84,7 @@ public class View extends JFrame implements ActionListener {
         Dimension slotDim = getSlotSize();
 
         while (numberOfSlots > 0) {
-            gamePanel.add(new Slot(slotDim));
+            gamePanel.add(new Slot(slotDim, this));
             numberOfSlots--;
         }
     }
@@ -86,21 +97,6 @@ public class View extends JFrame implements ActionListener {
     }
 
     /**
-     * Creates a new game. Takes over level from old game.
-     *
-     * @param player1 Player one (beginning player)
-     * @param player2 Player two
-     */
-    private void createNewGame(Player player1, Player player2) {
-        gameModel = new ConnectFour(player1, player2);
-        gameModel.setLevel((int) levelSelection.getSelectedItem());
-
-        if (gameModel.getFirstPlayer().isMachine()) {
-            gameModel = gameModel.machineMove();
-        }
-    }
-
-    /**
      * Checks if game is initiated.
      *
      * @return true if game is running.
@@ -109,12 +105,66 @@ public class View extends JFrame implements ActionListener {
         return gameModel != null;
     }
 
+    private void performMachineMove() {
+        machineThread = new Thread(() -> gameModel.machineMove());
+        machineThread.start();
+    }
+
+    public void columnClickedEvent(int column) {
+        if (initiated()) {
+            if (!machinePlaying) {
+                if (gameModel.isGameOver()) {
+                    showMessage(MSG_GAMEOVER);
+                } else {
+                    Board playerMove = gameModel.move(column);
+
+                    if (playerMove != null) {
+                        gameModel = playerMove;
+
+                        if (!checkWinner()) {
+                            gameModel = gameModel.machineMove();
+                            checkWinner();
+                        }
+                    } else {
+                        showMessage(MSG_ILLEGAL_MOVE);
+                    }
+                }
+            } else {
+                showMessage(MSG_ILLEGAL_MOVE);
+            }
+        } else {
+            showMessage(MSG_NOT_INITIATED);
+        }
+    }
+
+    private void showMessage(String message) {
+        JOptionPane.showMessageDialog(this,
+                 message, "Attention",
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+    private boolean checkWinner() {
+        if (gameModel.isGameOver()) {
+            Player winner = gameModel.getWinner();
+
+            if (winner != null) {
+                if (winner.isMachine()) {
+                    showMessage(MSG_DEFEAT);
+                } else {
+                    showMessage(MSG_VICTORY);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void addActionListeners() {
         levelSelection.addActionListener(new SelectionListener());
         newGameButton.addActionListener(new NewGameListener());
         switchButton.addActionListener(new SwitchListener());
         quitButton.addActionListener(new QuitListener());
-        gamePanel.addMouseListener(new Mylistener());
+        gamePanel.addComponentListener(new ResizeListener());
     }
 
     class SelectionListener implements ActionListener {
@@ -140,6 +190,21 @@ public class View extends JFrame implements ActionListener {
             Player p2 = new Player(Color.YELLOW, false);
             createNewGame(p1, p2);
         }
+
+        /**
+         * Creates a new game. Takes over level from old game.
+         *
+         * @param player1 Player one (beginning player)
+         * @param player2 Player two
+         */
+        private void createNewGame(Player player1, Player player2) {
+            gameModel = new ConnectFour(player1, player2);
+            gameModel.setLevel((int) levelSelection.getSelectedItem());
+
+            if (gameModel.getFirstPlayer().isMachine()) {
+                performMachineMove();
+            }
+        }
     }
 
     class QuitListener implements ActionListener {
@@ -149,34 +214,30 @@ public class View extends JFrame implements ActionListener {
         }
     }
 
-    class Mylistener implements MouseListener {
+    class ResizeListener implements ComponentListener {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
-            e.getSource();
-        }
+        public void componentResized(ComponentEvent e) {
+            Dimension newSize = getSlotSize();
 
-        @Override
-        public void mousePressed(MouseEvent e) {
-            e.getSource();
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            int column;
-            e.getSource();
-            for (int col = 0; col < Board.COLS; col++) {
-
+            //TODO
+            for (Component slot : gamePanel.getComponents()) {
+                slot.setPreferredSize(newSize);
             }
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void componentMoved(ComponentEvent e) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void componentShown(ComponentEvent e) {
+
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent e) {
 
         }
     }
