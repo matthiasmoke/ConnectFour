@@ -1,10 +1,11 @@
+import java.awt.*;
 
 /**
  * Represents a player in the game
  */
 public class Player implements Cloneable, Comparable {
 
-    //private Color checkerColor
+    private Color checkerColor;
     private char symbol;
     private boolean isMachine;
     private boolean isWinner;
@@ -16,6 +17,11 @@ public class Player implements Cloneable, Comparable {
     public Player(char symbol) {
         this.symbol = symbol;
         this.isMachine = false;
+    }
+
+    public Player(Color checkerColor, boolean isMachine) {
+        this.checkerColor = checkerColor;
+        this.isMachine = isMachine;
     }
 
     /**
