@@ -73,8 +73,4 @@ public class Slot extends JPanel {
         circleColor = color;
         repaint();
     }
-
-    public Color getCircleColor() {
-        return circleColor;
-    }
 }

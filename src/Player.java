@@ -42,6 +42,10 @@ public class Player implements Cloneable, Comparable {
         return symbol;
     }
 
+    public Color getCheckerColor() {
+        return checkerColor;
+    }
+
     /**
      * Gets information about the player type.
      * @return True if player is type of machine, false if not.
@@ -88,12 +92,22 @@ public class Player implements Cloneable, Comparable {
     public int compareTo(Object o) {
         Player player = (Player) o;
 
-        if (this.symbol == player.symbol) {
-            return 0;
-        } else if (this.symbol < player.symbol) {
-            return -1;
-        } else {
-            return 1;
+        if (symbol > 0) {
+            if (this.symbol == player.symbol) {
+                return 0;
+            } else if (this.symbol < player.symbol) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else  {
+            if (this.checkerColor == player.checkerColor) {
+                return 0;
+            } else if (this.checkerColor != player.checkerColor) {
+                return -1;
+            } else {
+                return 1;
+            }
         }
     }
 }

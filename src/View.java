@@ -4,19 +4,16 @@ import java.awt.event.*;
 
 public class View extends JFrame implements ActionListener {
 
-    private  JFrame mainFrame;
-    private  JPanel gamePanel;
-    private  JPanel menuPanel;
-    private  JButton newGameButton;
-    private  JButton switchButton;
-    private  JButton quitButton;
-    private  JComboBox<Integer> levelSelection;
-
+    private static JFrame mainFrame;
+    private static JPanel gamePanel;
+    private static JPanel menuPanel;
+    private static JButton newGameButton;
+    private static JButton switchButton;
+    private static JButton quitButton;
+    private static JComboBox<Integer> levelSelection;
     private static Board gameModel;
     private static Thread machineThread;
-
-    private boolean machinePlaying = false;
-
+    private static boolean machinePlaying = false;
     private static final int[] LEVELS = {1, 2, 3, 4, 5};
     private static final int DEFAULT_HEIGHT = 650;
     private static final int DEFAULT_WIDTH = 700;
@@ -68,10 +65,6 @@ public class View extends JFrame implements ActionListener {
 
     }
 
-    private void drawGamePanel() {
-
-    }
-
     private void initLevelComboBox() {
         for (int level : LEVELS) {
             levelSelection.addItem(level);
@@ -106,8 +99,48 @@ public class View extends JFrame implements ActionListener {
     }
 
     private void performMachineMove() {
-        machineThread = new Thread(() -> gameModel.machineMove());
+        machineThread = new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                machinePlaying = true;
+                Board machineMove = gameModel.machineMove();
+
+                if (machineMove != null) {
+                    //TODO get column of machine move
+                }
+            }
+        };
         machineThread.start();
+    }
+
+    private static void performMove(int column, Board newBoard) {
+        for (int i = Board.ROWS - 1; i > 0; i--) {
+
+            // Get position and player of the last checker that was put in game
+            Player player = newBoard.getSlot(i, column);
+
+            if(player != null) {
+                int index = getComponentIndex(column, i);
+                Slot currSlot = (Slot) gamePanel.getComponent(index - 1);
+                currSlot.setCircleColor(player.getCheckerColor());
+            }
+        }
+    }
+
+    /**
+     * Calculates the index of the slot in game panel by using its row and col.
+     *
+     * @param col Column of the slot.
+     * @param row Row of the slot.
+     * @return Component index in the game panel.
+     */
+    private static int getComponentIndex(int col, int row) {
+        int allSlots = Board.COLS * Board.ROWS;
+        int slotsBeforeCurrent = ((row - 1) * Board.COLS) - (Board.COLS - col);
+        int index = allSlots - slotsBeforeCurrent;
+
+        return index;
     }
 
     public void columnClickedEvent(int column) {
@@ -120,6 +153,7 @@ public class View extends JFrame implements ActionListener {
 
                     if (playerMove != null) {
                         gameModel = playerMove;
+                        performMove(column, gameModel);
 
                         if (!checkWinner()) {
                             gameModel = gameModel.machineMove();
@@ -179,7 +213,9 @@ public class View extends JFrame implements ActionListener {
     class NewGameListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            gameModel = new ConnectFour();
+            Player p1  = new Player(Color.YELLOW, false);
+            Player p2 = new Player(Color.RED, true);
+            gameModel = new ConnectFour(p1, p2);
         }
     }
 
