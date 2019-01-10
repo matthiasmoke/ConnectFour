@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -20,24 +21,36 @@ public class ConnectFour implements Board, Cloneable {
     /**
      * Default constructor for game.
      * Automatically sets players.
+     *
+     * @param switchPlayers If true, the bot will start the game.
      */
-    public ConnectFour() {
-        players[0] = new Player('X');
+    public ConnectFour(boolean switchPlayers) {
+        Player human = new Player('X');
+        Player machine = new Player('O', true);
+
+        if (switchPlayers) {
+            players[0] = machine;
+            players[1] = human;
+        } else {
+            players[0] = human;
+            players[1] = machine;
+        }
         currentPlayer = players[0];
-        players[1] = new Player('O', true);
         groups = new GroupManager(players[0], players[1]);
     }
 
-    /**
-     * Constructor for two players
-     *
-     * @param player1 Beginning player.
-     * @param player2 Second player.
-     */
-    public ConnectFour(Player player1, Player player2) {
-        players[0] = player1;
+    public ConnectFour(boolean switchPlayers, boolean showView) {
+        Player human = new Player(Color.YELLOW, false);
+        Player machine = new Player(Color.RED, true);
+
+        if (switchPlayers) {
+            players[0] = machine;
+            players[1] = human;
+        } else {
+            players[0] = human;
+            players[1] = machine;
+        }
         currentPlayer = players[0];
-        players[1] = player2;
         groups = new GroupManager(players[0], players[1]);
     }
 

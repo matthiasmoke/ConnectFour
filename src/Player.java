@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Represents a player in the game
@@ -34,6 +34,10 @@ public class Player implements Cloneable, Comparable {
         this.isMachine = isMachine;
     }
 
+    public Color getCheckerColor() {
+        return checkerColor;
+    }
+
     /**
      * Gets the player-symbol.
      * @return Symbol of the player.
@@ -42,9 +46,6 @@ public class Player implements Cloneable, Comparable {
         return symbol;
     }
 
-    public Color getCheckerColor() {
-        return checkerColor;
-    }
 
     /**
      * Gets information about the player type.

@@ -6,7 +6,6 @@ public class View extends JFrame implements ActionListener {
 
     private static JFrame mainFrame;
     private static JPanel gamePanel;
-    private static JPanel menuPanel;
     private static JButton newGameButton;
     private static JButton switchButton;
     private static JButton quitButton;
@@ -36,7 +35,7 @@ public class View extends JFrame implements ActionListener {
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Initializing controls here.
-        menuPanel = new JPanel();
+        JPanel menuPanel = new JPanel();
         gamePanel = new JPanel();
 
         newGameButton = new JButton("New");
@@ -124,6 +123,8 @@ public class View extends JFrame implements ActionListener {
                 int index = getComponentIndex(column, i);
                 Slot currSlot = (Slot) gamePanel.getComponent(index - 1);
                 currSlot.setCircleColor(player.getCheckerColor());
+
+
             }
         }
     }
@@ -213,28 +214,23 @@ public class View extends JFrame implements ActionListener {
     class NewGameListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Player p1  = new Player(Color.YELLOW, false);
-            Player p2 = new Player(Color.RED, true);
-            gameModel = new ConnectFour(p1, p2);
+            gameModel = new ConnectFour(false);
         }
     }
 
     class SwitchListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Player p1 = new Player(Color.RED, true);
-            Player p2 = new Player(Color.YELLOW, false);
-            createNewGame(p1, p2);
+            createNewGame(true);
         }
 
         /**
          * Creates a new game. Takes over level from old game.
          *
-         * @param player1 Player one (beginning player)
-         * @param player2 Player two
+         * @param switchPlayer Determines if machine should start.
          */
-        private void createNewGame(Player player1, Player player2) {
-            gameModel = new ConnectFour(player1, player2);
+        private void createNewGame(boolean switchPlayer) {
+            gameModel = new ConnectFour(switchPlayer);
             gameModel.setLevel((int) levelSelection.getSelectedItem());
 
             if (gameModel.getFirstPlayer().isMachine()) {

@@ -109,8 +109,7 @@ public final class Shell {
             switch (command.charAt(0)) {
 
             case 'n':
-                createNewGame(new Player('X'),
-                        new Player('O', true));
+                createNewGame(false);
                 break;
 
             case 'l':
@@ -152,11 +151,10 @@ public final class Shell {
     /**
      * Creates a new game. Takes over level from old game.
      *
-     * @param player1 Player one (beginning player)
-     * @param player2 Player two
+     * @param switchPlayer Determines if machine should start.
      */
-    private static void createNewGame(Player player1, Player player2) {
-        game = new ConnectFour(player1, player2);
+    private static void createNewGame(boolean switchPlayer) {
+        game = new ConnectFour(switchPlayer);
 
         if (levelIsSet) {
             setLevel(level);
@@ -171,9 +169,7 @@ public final class Shell {
      * Switches beginner.
      */
     private static void switchBeginner() {
-        Player p1 = new Player('O', true);
-        Player p2 = new Player('X');
-        createNewGame(p1, p2);
+        createNewGame(true);
     }
 
     /**
