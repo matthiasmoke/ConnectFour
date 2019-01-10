@@ -5,13 +5,13 @@ import java.awt.Color;
  */
 public class Player implements Cloneable, Comparable {
 
-    private Color checkerColor;
     private char symbol;
     private boolean isMachine;
     private boolean isWinner;
 
     /**
      * Creates a new human player.
+     *
      * @param symbol Symbol of the player.
      */
     public Player(char symbol) {
@@ -19,14 +19,10 @@ public class Player implements Cloneable, Comparable {
         this.isMachine = false;
     }
 
-    public Player(Color checkerColor, boolean isMachine) {
-        this.checkerColor = checkerColor;
-        this.isMachine = isMachine;
-    }
-
     /**
      * Creates a new human or machine Player.
-     * @param symbol Symbol of the player.
+     *
+     * @param symbol    Symbol of the player.
      * @param isMachine Indicates if player is type of machine or not.
      */
     public Player(char symbol, boolean isMachine) {
@@ -34,12 +30,9 @@ public class Player implements Cloneable, Comparable {
         this.isMachine = isMachine;
     }
 
-    public Color getCheckerColor() {
-        return checkerColor;
-    }
-
     /**
      * Gets the player-symbol.
+     *
      * @return Symbol of the player.
      */
     public char getSymbol() {
@@ -49,6 +42,7 @@ public class Player implements Cloneable, Comparable {
 
     /**
      * Gets information about the player type.
+     *
      * @return True if player is type of machine, false if not.
      */
     public boolean isMachine() {
@@ -74,7 +68,7 @@ public class Player implements Cloneable, Comparable {
     }
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public Player clone() {
@@ -93,22 +87,12 @@ public class Player implements Cloneable, Comparable {
     public int compareTo(Object o) {
         Player player = (Player) o;
 
-        if (symbol > 0) {
-            if (this.symbol == player.symbol) {
-                return 0;
-            } else if (this.symbol < player.symbol) {
-                return -1;
-            } else {
-                return 1;
-            }
-        } else  {
-            if (this.checkerColor == player.checkerColor) {
-                return 0;
-            } else if (this.checkerColor != player.checkerColor) {
-                return -1;
-            } else {
-                return 1;
-            }
+        if (this.symbol == player.symbol) {
+            return 0;
+        } else if (this.symbol < player.symbol) {
+            return -1;
+        } else {
+            return 1;
         }
     }
 }
